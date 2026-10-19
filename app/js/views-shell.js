@@ -21,22 +21,19 @@
       '<button class="chipbtn ' + (id === cur ? 'on' : '') + '" data-act="setBatch" data-v="' + id + '" aria-pressed="' + (id === cur) + '">' + esc(t('batches.batch', { n: G.batchNo(id) })) + '</button>').join('') + '</div>';
   };
   G.acts.setBatch = el => { G.state.prefs.batch = el.getAttribute('data-v'); G.save(); G.render(); };
-  /* the 12 tasks in one batch at one level: 4 meet sets, 6 use rounds, 2 story parts */
+  /* the 5 tasks in one lesson at one level: Meet, Pick the word, Sentence Maker, Spelling Bee and the Article */
   G.taskCounts = function (batch, level) {
     const p = G.pg(batch, level);
-    const done = p.meet.filter(Boolean).length + p.pick.filter(x => x !== null).length + p.maker.filter(x => x > 0).length + p.bee.filter(x => x !== null).length + p.story.filter(Boolean).length;
-    return { done, total: 12 };
+    const done = (p.meet[0] > 0) + (p.pick[0] !== null) + (p.maker[0] > 0) + (p.bee[0] !== null) + (p.story[0] > 0);
+    return { done, total: 5 };
   };
   G.nextStep = function (batch, level) {
     const p = G.pg(batch, level), base = '#/batch/' + batch;
-    const m = p.meet.findIndex(x => !x);
-    if (m >= 0) return base + '/meet/' + (m + 1);
-    for (const a of ['pick', 'maker', 'bee']) {
-      const i = p[a].findIndex(x => a === 'maker' ? !x : x === null);
-      if (i >= 0) return base + '/use/' + a + '/' + (i + 1);
-    }
-    const s = p.story.findIndex(x => !x);
-    if (s >= 0) return base + '/story/' + (s + 1);
+    if (!(p.meet[0] > 0)) return base + '/meet';
+    if (p.pick[0] === null) return base + '/use/pick';
+    if (!(p.maker[0] > 0)) return base + '/use/maker';
+    if (p.bee[0] === null) return base + '/use/bee';
+    if (!(p.story[0] > 0)) return base + '/story';
     return base;
   };
 
@@ -116,7 +113,7 @@
     const lv = G.level(), b = G.curBatch();
     const spelling = [['build', '🔤', 'act.build'], ['missing', '🧩', 'act.missing'], ['bee', '🐝', 'act.bee']].map(([a, em, k]) =>
       '<div class="glass station" data-level="' + lv + '"><div class="row"><span style="font-size:34px">' + em + '</span><div><h3>' + esc(t(k)) + '</h3><div class="sub">' + esc(t(k + '.d')) + '</div></div></div>' +
-      '<div class="row"><a class="btn sm primary grow" href="#/play/' + a + '/' + b + '/1">' + esc(t('common.part', { n: 1 })) + '</a><a class="btn sm ghost grow" href="#/play/' + a + '/' + b + '/2">' + esc(t('common.part', { n: 2 })) + '</a></div></div>').join('');
+      '<div class="row"><a class="btn sm primary grow" href="#/play/' + a + '/' + b + '">' + esc(t('common.start')) + '</a></div></div>').join('');
     const arcade = [['🌧️', 'games.wordRain'], ['🃏', 'games.memory'], ['⚡', 'games.speed']].map(([em, k]) =>
       '<div class="glass station" style="opacity:.62"><div class="row"><span style="font-size:34px">' + em + '</span><div><h3>' + esc(t(k)) + '</h3><div class="sub">' + esc(t(k + '.d')) + '</div></div></div><span class="pill" style="align-self:flex-start">' + esc(t('common.soon')) + '</span></div>').join('');
     const inner = '<div class="hdr"><div><h1>' + esc(t('games.title')) + '</h1><p class="sub">' + esc(t('games.sub')) + '</p></div>' + G.levelSeg() + '</div>' + G.batchChips() +

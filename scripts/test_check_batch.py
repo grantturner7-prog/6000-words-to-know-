@@ -58,10 +58,10 @@ class CheckBatch(unittest.TestCase):
 
     def test_story_gap_count(self):
         def m(d): d["stories"]["beginner"]["parts"][0]["gaps"].pop()
-        self.assertCaught(run(m), "gaps, expected 10")
+        self.assertCaught(run(m), "gaps, expected 20")
 
     def test_story_marks_out_of_order(self):
-        def m(d): d["stories"]["advanced"]["parts"][1]["text"] = d["stories"]["advanced"]["parts"][1]["text"].replace("[[3]]", "[[9]]", 1)
+        def m(d): d["stories"]["advanced"]["parts"][0]["text"] = d["stories"]["advanced"]["parts"][0]["text"].replace("[[3]]", "[[9]]", 1)
         self.assertCaught(run(m), "gap marks must run")
 
     def test_story_word_missing_from_gaps(self):
@@ -73,7 +73,7 @@ class CheckBatch(unittest.TestCase):
         self.assertCaught(run(m), "words above the band")
 
     def test_story_sentence_too_long(self):
-        def m(d): d["stories"]["beginner"]["parts"][1]["text"] = d["stories"]["beginner"]["parts"][1]["text"].replace("Everyone eats [[9]].", "Everyone eats [[9]] and then they all go to the big room to play.")
+        def m(d): d["stories"]["beginner"]["parts"][0]["text"] = d["stories"]["beginner"]["parts"][0]["text"].replace("Everyone eats [[19]].", "Everyone eats [[19]] and then they all go to the big room to play.")
         self.assertCaught(run(m), "cap 8")
 
     def test_gap_form_not_a_form_of_the_word(self):

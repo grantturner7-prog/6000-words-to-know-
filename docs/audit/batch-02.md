@@ -1,5 +1,7 @@
 # Batch 2, the next 20 words (2026-10-19)
 
+> **Update, same day:** the owner had not asked for a second lesson. It is no longer in the app, the checker or the PDFs. The file is kept as `content/drafts/b002.json` in the old two-part story format and would need the one-article format (see `one-lesson-flow.md`) before it is used. The rest of this note is the record of how it was checked.
+
 ## What was built
 - `content/batches/b002.json`: able, east, lose, mountain, only, bad, file, pm, remember, towel, born, chance, god, shake, west, cross, holiday, kill, sorry, teach. Per word: meanings in English and Traditional Chinese, a picture cue, three examples, three sets of answer choices, three Sentence Maker frames and look-alike spellings. Six stories of 10 gaps. 1,200 Sentence Maker sentences in all. Status `draft`.
 - The app now handles more than one batch. Today and Games follow a batch chosen with chips, Progress lists every written batch, and the Batches tab opens Batches 1 and 2 as the free sample.

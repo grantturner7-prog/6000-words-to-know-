@@ -56,7 +56,7 @@
   /* Save code: a text copy of the progress, so a student can keep a backup or move to another device
      with no account and no server. The code is rebuilt from known fields only, so a damaged or edited
      code cannot break the app. */
-  const SAVE_TAG = 'G6K1.', STATION = { meet: 4, pick: 2, maker: 2, bee: 2, build: 2, missing: 2, story: 2 };
+  const SAVE_TAG = 'G6K1.';
   G.saveCode = function () {
     const s = G.state, pack = { v: 1, profile: s.profile, progress: s.progress, sentences: s.sentences, met: s.met, streak: s.streak,
       prefs: { level: s.prefs.level, batch: s.prefs.batch, lang: s.prefs.lang, zh: s.prefs.zh } };
@@ -68,14 +68,12 @@
       if (t.indexOf(SAVE_TAG) !== 0) return false;
       const pack = JSON.parse(decodeURIComponent(escape(atob(t.slice(SAVE_TAG.length)))));
       if (!pack || pack.v !== 1 || !pack.progress || typeof pack.progress !== 'object' || Array.isArray(pack.progress)) return false;
-      const num = x => (x === null ? null : (typeof x === 'number' && isFinite(x) ? x : 0));
       const progress = {};
       Object.keys(pack.progress).forEach(b => {
         if (!/^b\d{3}$/.test(b) || !pack.progress[b] || typeof pack.progress[b] !== 'object') return;
         LEVELS.forEach(l => {
           const src = pack.progress[b][l]; if (!src || typeof src !== 'object') return;
-          const out = (progress[b] = progress[b] || {})[l] = {};
-          Object.keys(STATION).forEach(k => { const a = Array.isArray(src[k]) ? src[k] : []; out[k] = Array.from({ length: STATION[k] }, (_, i) => num(a[i] === undefined ? (k === 'meet' || k === 'story' || k === 'maker' ? 0 : null) : a[i])); });
+          (progress[b] = progress[b] || {})[l] = G.normPg(src);
         });
       });
       const met = {}; Object.keys(pack.met && typeof pack.met === 'object' ? pack.met : {}).forEach(id => { if (/^w\d{4}$/.test(id)) met[id] = 1; });
@@ -95,11 +93,27 @@
   G.level = () => G.state.prefs.level;
   G.zhOn = () => !!G.state.prefs.zh;
 
-  G.pg = function (batch, level) {
-    const p = (G.state.progress[batch] = G.state.progress[batch] || {});
-    return (p[level] = p[level] || { meet: [0, 0, 0, 0], pick: [null, null], maker: [0, 0], bee: [null, null], build: [null, null], missing: [null, null], story: [0, 0] });
+  /* Progress in one lesson at one level. A lesson is one run of 20 words, so each station holds one value: a
+     flag (0 or 1) for meet and story, a count (0 when not done) for the Sentence Maker, a score or null for the others. Older saves that split the lesson
+     into sets and parts are folded into this shape. */
+  const STATIONS = { meet: 'flag', story: 'flag', maker: 'count', pick: 'score', bee: 'score', build: 'score', missing: 'score' };
+  G.normPg = function (src) {
+    const out = {};
+    Object.keys(STATIONS).forEach(k => {
+      const a = src && Array.isArray(src[k]) ? src[k] : [];
+      const all = a.length > 0 && a.every(x => typeof x === 'number' && isFinite(x));
+      if (STATIONS[k] === 'flag') out[k] = [all && a.every(x => x > 0) ? 1 : 0];
+      else if (STATIONS[k] === 'count') out[k] = [all && a.every(x => x > 0) ? a.reduce((n, x) => n + x, 0) : 0];
+      else out[k] = [a.length > 0 && a.every(x => typeof x === 'number' && isFinite(x)) ? a.reduce((n, x) => n + x, 0) : null];
+    });
+    return out;
   };
-  G.hasStar = (batch, level) => { const p = G.state.progress[batch] && G.state.progress[batch][level]; return !!(p && p.story[0] && p.story[1]); };
+  G.pg = function (batch, level) {
+    const p = (G.state.progress[batch] = G.state.progress[batch] || {}), cur = p[level];
+    if (!cur || Object.keys(STATIONS).some(k => !Array.isArray(cur[k]) || cur[k].length !== 1)) p[level] = G.normPg(cur);
+    return p[level];
+  };
+  G.hasStar = (batch, level) => { const p = G.state.progress[batch] && G.state.progress[batch][level]; return !!(p && G.normPg(p).story[0] === 1); };
   G.starCount = () => Object.keys(G.state.progress).reduce((n, b) => n + LEVELS.filter(l => G.hasStar(b, l)).length, 0);
   G.metCount = () => Object.keys(G.state.met).length;
   G.today = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
@@ -195,7 +209,7 @@
   };
   G.boot = () => G.loadJSON('batches').then(p => { G.data.plan = p; return G.loadJSON('audio', '../audio/index.json').then(c => { G.clips = c || {}; }, () => {}); });
   G.isBuilt = id => G.builtList().indexOf(id) >= 0;
-  G.builtIds = ['b001', 'b002'];   /* batches written and playable; the single-file build lists whatever it inlines */
+  G.builtIds = ['b001'];   /* batches written and playable; the single-file build lists whatever it inlines */
   G.builtList = () => (window.G_INLINE ? Object.keys(window.G_INLINE).filter(k => /^b\d+$/.test(k)).sort() : G.builtIds);
   /* the batch the student is working on: their choice if it is playable, else the first one */
   G.curBatch = () => { const l = G.builtList(), b = G.state.prefs.batch; return l.indexOf(b) >= 0 ? b : l[0]; };

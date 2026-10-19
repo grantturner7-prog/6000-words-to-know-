@@ -8,8 +8,12 @@
      zone:  selector for places they can land
      tapPlace: when given, a tap on a chip lands it on the zone this returns (used for letter tiles)
      onTap:    runs first on a tap; return true to stop the default select behaviour */
-  function attach(root, o) {
-    let sel = null, drag = null, justDragged = false;
+  function attach(root, opts) {
+    /* A screen redraws its words and letters many times but keeps the same root element. Attaching again
+       must only swap in the new options: a second set of listeners would run old code on every tap and
+       drop letters into a tray that is no longer on the page. */
+    if (root.__dnd) { root.__dnd.update(opts); return root.__dnd.api; }
+    let o = opts, sel = null, drag = null, justDragged = false;
 
     function zones() { return G.$$(o.zone, root); }
     function clearSel() {
@@ -107,7 +111,9 @@
       }
     });
 
-    return { clearSel };
+    const api = { clearSel };
+    root.__dnd = { api, update: n => { o = n; drag = null; clearSel(); } };
+    return api;
   }
 
   G.dnd = { attach };

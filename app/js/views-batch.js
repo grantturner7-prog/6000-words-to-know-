@@ -1,10 +1,8 @@
-/* A batch: hub, the three stations (Meet, Use, Story) and the spelling games. */
+/* A lesson (20 words): hub, the three stations (Meet, Use, Article) and the spelling games. Every activity covers all 20 words. */
 (function (G) {
   'use strict';
   const t = (k, v) => G.t(k, v), esc = G.esc;
 
-  const partWords = (b, part) => b.words.filter(w => (part === 1 ? w.set <= 2 : w.set >= 3));
-  const setWords = (b, n) => b.words.filter(w => w.set === n);
   const byHead = (b, h) => b.words.find(w => w.headword === h);
   const zhSwitch = () => G.sw('toggleZh', G.zhOn(), t('batch.zh'), ' data-zhsw="1"');
 
@@ -30,42 +28,42 @@
   }
   const levelSupport = () => ({ beginner: 0, intermediate: 2, advanced: 3 }[G.level()]);
 
-  /* ---------- batch hub ---------- */
+  /* ---------- lesson hub ---------- */
   G.route(/^#\/batch\/(b\d+)$/, function (id) {
     if (!G.isBuilt(id)) { location.hash = '#/batches'; return new Promise(() => {}); }
     return G.loadBatch(id).then(b => {
       const lv = G.level(), p = G.pg(id, lv), n = +id.slice(1);
       const tick = ok => ok ? '<span class="ok">✓</span>' : '<span class="go">' + G.icon('arrow').replace('<svg', '<svg width="18" height="18" style="stroke:currentColor;fill:none;stroke-width:2"') + '</span>';
-      const meet = [1, 2, 3, 4].map(s => '<a class="act" href="#/batch/' + id + '/meet/' + s + '"><span class="em">' + ['🌱', '🌿', '🍀', '🌳'][s - 1] + '</span>' + esc(t('set.n', { n: s })) + '<span class="pill" style="margin-left:6px">' + setWords(b, s).map(w => w.headword).slice(0, 2).join(', ') + '…</span>' + tick(p.meet[s - 1]) + '</a>').join('');
-      const use = [['pick', '🎯', p.pick, v => v !== null], ['maker', '🧱', p.maker, v => v > 0], ['bee', '🐝', p.bee, v => v !== null]].map(([a, em, arr, ok]) =>
-        '<div class="act" style="cursor:default"><span class="em">' + em + '</span><span class="grow">' + esc(t('act.' + a)) + '</span>' +
-        [1, 2].map(pt => '<a class="btn sm ' + (ok(arr[pt - 1]) ? 'ghost' : 'primary') + '" href="#/batch/' + id + '/use/' + a + '/' + pt + '">' + (ok(arr[pt - 1]) ? '✓ ' : '') + pt + '</a>').join('') + '</div>').join('');
-      const story = [1, 2].map(pt => '<a class="act" href="#/batch/' + id + '/story/' + pt + '"><span class="em">📖</span>' + esc(t('common.part', { n: pt })) + '<span class="pill" style="margin-left:6px">' + esc(b.stories[lv].parts[pt - 1].title) + '</span>' + tick(p.story[pt - 1]) + '</a>').join('');
+      const meet = '<a class="act" href="#/batch/' + id + '/meet"><span class="em">🌱</span><span class="grow">' + esc(t('meet.cards.title')) + '</span><span class="pill">' + b.words.length + ' ' + esc(t('common.words')) + '</span>' + tick(p.meet[0] > 0) + '</a>';
+      const use = [['pick', '🎯', p.pick[0] !== null], ['maker', '🧱', p.maker[0] > 0], ['bee', '🐝', p.bee[0] !== null]].map(([a, em, ok]) =>
+        '<a class="act" href="#/batch/' + id + '/use/' + a + '"><span class="em">' + em + '</span><span class="grow">' + esc(t('act.' + a)) + '</span>' + tick(ok) + '</a>').join('');
+      const article = '<a class="act" href="#/batch/' + id + '/story"><span class="em">📖</span><span class="grow">' + esc(b.stories[lv].parts[0].title) + '</span>' + tick(p.story[0] > 0) + '</a>';
       const words = b.words.map(w => '<button class="chip" data-peek="' + w.id + '" style="font-size:16px;min-height:42px;touch-action:auto">' + (w.emoji || '') + ' ' + esc(w.headword) + '</button>').join('');
       const inner = '<div class="hdr"><div><a class="sub" href="#/batches" style="font-weight:700">‹ ' + esc(t('nav.batches')) + '</a><h1>' + esc(t('batch.title', { n })) + '</h1><p class="sub">' + esc(t('batch.sub')) + '</p></div>' + G.starsHtml(id) + '</div>' +
         '<div class="glass card row between wrap" data-level="' + lv + '"><div class="stack tight grow" style="min-width:260px"><h2>' + esc(t('batch.level')) + '</h2>' + G.levelSeg() + '<span class="hint-text">' + esc(t('level.' + lv + '.d')) + '</span></div>' + zhSwitch() + '</div>' +
         '<div class="grid g3" data-level="' + lv + '">' +
         '<section class="glass station tint"><div class="num">1</div><div><h3>' + esc(t('station.meet')) + '</h3><div class="sub">' + esc(t('station.meet.d')) + '</div></div><div class="acts">' + meet + '</div></section>' +
         '<section class="glass station tint"><div class="num">2</div><div><h3>' + esc(t('station.use')) + '</h3><div class="sub">' + esc(t('station.use.d')) + ' ' + esc(t('use.sub')) + '</div></div><div class="acts">' + use + '</div></section>' +
-        '<section class="glass station tint"><div class="num">3</div><div><h3>' + esc(t('station.story')) + '</h3><div class="sub">' + esc(t('station.story.d')) + '</div></div><div class="acts">' + story + '</div></section></div>' +
+        '<section class="glass station tint"><div class="num">3</div><div><h3>' + esc(t('station.story')) + '</h3><div class="sub">' + esc(t('station.story.d')) + '</div></div><div class="acts">' + article + '</div></section></div>' +
         '<section class="glass card"><h2>' + esc(t('batch.wordsIn')) + '</h2><div class="chips" style="margin-top:14px">' + words + '</div></section>';
       return G.page(inner, '#/batch/' + id);
     });
   });
 
   /* ---------- MEET: cards, match, build ---------- */
-  G.route(/^#\/batch\/(b\d+)\/meet\/([1-4])$/, function (id, set) {
-    set = +set;
+  G.route(/^#\/batch\/(b\d+)\/meet(?:\/[1-4])?$/, function (id) {
     return G.loadBatch(id).then(b => {
-      const pg = playerPage(esc(t('station.meet')) + ' · ' + esc(t('set.of', { n: set })), '#/batch/' + id, '#/batch/' + id);
-      pg.mount = root => meetFlow(root, b, setWords(b, set), set);
+      const pg = playerPage(esc(t('station.meet')), '#/batch/' + id, '#/batch/' + id);
+      pg.mount = root => meetFlow(root, b, b.words);
       return pg;
     });
   });
 
-  function meetFlow(root, b, ws, set) {
-    const stage = G.$('#stage', root), lv = G.level();
-    let step = 0, card = 0, cleanupDnd = null;
+  /* Cards for all 20 words, then Match it (five words on screen at a time so it fits a phone, one count for the
+     whole lesson), then Build it for all 20. */
+  function meetFlow(root, b, ws) {
+    const stage = G.$('#stage', root), lv = G.level(), ROUND = 5;
+    let step = 0, card = 0, mround = 0, cleanupDnd = null;
 
     function cards() {
       setProg(0, 3);
@@ -85,8 +83,8 @@
 
     function match() {
       setProg(1, 3);
-      const left = G.shuffle(ws), right = G.shuffle(ws);
-      stage.innerHTML = '<h3>' + esc(t('match.title')) + '</h3><div class="match"><div class="col">' +
+      const chunk = ws.slice(mround * ROUND, mround * ROUND + ROUND), left = G.shuffle(chunk), right = G.shuffle(chunk);
+      stage.innerHTML = '<div class="row between wrap" style="width:100%"><h3>' + esc(t('match.title')) + '</h3><span class="hint-text" id="mc">' + esc(t('match.count', { n: mround * ROUND, m: ws.length })) + '</span></div><div class="match"><div class="col">' +
         left.map(w => '<button class="chip" data-w="' + w.id + '">' + (w.emoji || '') + ' ' + esc(w.headword) + '</button>').join('') + '</div><div class="col">' +
         right.map(w => '<div class="mean dz" data-w="' + w.id + '" role="button" tabindex="0" aria-label="' + esc(w.defEN) + '"><span>' + esc(w.defEN) + (G.zhOn() ? '<span class="zh">' + esc(w.zhTW) + '</span>' : '') + '</span><span class="slotfill"></span></div>').join('') + '</div></div>' +
         '<div class="hint-text" id="fb" style="min-height:22px"></div>';
@@ -97,8 +95,11 @@
           const fb = G.$('#fb', stage);
           if (chip.dataset.w === zone.dataset.w) {
             zone.classList.add('done', 'locked'); G.$('.slotfill', zone).appendChild(chip); chip.classList.add('ok'); matched++;
-            fb.textContent = t('fb.great');
-            if (matched === ws.length) { fb.textContent = t('match.great'); setTimeout(() => { step = 2; build(); }, 900); }
+            fb.textContent = t('fb.great'); G.$('#mc', stage).textContent = t('match.count', { n: mround * ROUND + matched, m: ws.length });
+            if (matched === chunk.length) {
+              if ((mround + 1) * ROUND < ws.length) { mround++; setTimeout(match, 700); }
+              else { fb.textContent = t('match.great'); setTimeout(() => { step = 2; build(); }, 900); }
+            }
           } else {
             zone.classList.add('shake'); chip.classList.add('shake'); fb.textContent = t('match.tryAnother');
             setTimeout(() => { zone.classList.remove('shake'); chip.classList.remove('shake'); }, 480);
@@ -113,9 +114,8 @@
       buildRound(stage, ws, {
         mode: 'build',
         onDone: () => {
-          const p = G.pg(b.id, lv); p.meet[set - 1] = 1; G.save();
-          const next = set < 4 ? { label: t('set.n', { n: set + 1 }), href: '#/batch/' + b.id + '/meet/' + (set + 1), primary: true } : { label: t('station.use'), href: '#/batch/' + b.id + '/use/pick/1', primary: true };
-          finishCard(stage, { emoji: '🌟', title: t('set.complete', { n: set }), actions: [next, { label: t('story.finish'), href: '#/batch/' + b.id }] });
+          const p = G.pg(b.id, lv); p.meet[0] = 1; G.save();
+          finishCard(stage, { emoji: '🌟', title: t('meet.complete'), actions: [{ label: t('station.use'), href: '#/batch/' + b.id + '/use/pick', primary: true }, { label: t('story.finish'), href: '#/batch/' + b.id }] });
         }
       });
     }
@@ -198,23 +198,22 @@
     draw(false); G.say(words[0].headword);
   }
 
-  /* ---------- USE: pick, maker, bee ---------- */
-  G.route(/^#\/batch\/(b\d+)\/use\/(pick|maker|bee)\/([12])$/, function (id, act, part) {
-    part = +part;
+  /* ---------- USE: pick, maker, bee (all 20 words each) ---------- */
+  G.route(/^#\/batch\/(b\d+)\/use\/(pick|maker|bee)(?:\/[12])?$/, function (id, act) {
     return G.loadBatch(id).then(b => {
-      const pg = playerPage(esc(t('station.use')) + ' · ' + esc(t('act.' + act)) + ' · ' + esc(t('common.part', { n: part })), '#/batch/' + id, '#/batch/' + id);
+      const pg = playerPage(esc(t('station.use')) + ' · ' + esc(t('act.' + act)), '#/batch/' + id, '#/batch/' + id);
       pg.mount = root => {
-        const stage = G.$('#stage', root), ws = partWords(b, part), lv = G.level();
+        const stage = G.$('#stage', root), ws = b.words, lv = G.level();
         const done = (score, total) => {
           const p = G.pg(id, lv);
-          if (act === 'pick') p.pick[part - 1] = score; else if (act === 'maker') p.maker[part - 1] = Math.max(1, score); else p.bee[part - 1] = score;
+          if (act === 'pick') p.pick[0] = score; else if (act === 'maker') p.maker[0] = Math.max(1, score); else p.bee[0] = score;
           G.save();
-          const nextHref = part === 1 ? '#/batch/' + id + '/use/' + act + '/2' : (act === 'pick' ? '#/batch/' + id + '/use/maker/1' : act === 'maker' ? '#/batch/' + id + '/use/bee/1' : '#/batch/' + id + '/story/1');
+          const nextHref = act === 'pick' ? '#/batch/' + id + '/use/maker' : act === 'maker' ? '#/batch/' + id + '/use/bee' : '#/batch/' + id + '/story';
           finishCard(stage, {
             emoji: '🎯', title: act === 'maker' ? t('maker.saved') : t('pick.score', { n: score, m: total }),
-            actions: [{ label: part === 1 ? t('common.part', { n: 2 }) : (act === 'bee' ? t('station.story') : t('common.next')), href: nextHref, primary: true }, { label: t('common.again'), act: 'replay' }, { label: t('story.finish'), href: '#/batch/' + id }]
+            actions: [{ label: act === 'bee' ? t('station.story') : t('common.next'), href: nextHref, primary: true }, { label: t('common.again'), act: 'replay' }, { label: t('story.finish'), href: '#/batch/' + id }]
           });
-          G.acts.replay = () => { location.hash = '#/batch/' + id + '/use/' + act + '/' + part; G.render(); };
+          G.acts.replay = () => { location.hash = '#/batch/' + id + '/use/' + act; G.render(); };
         };
         if (act === 'pick') pickRound(stage, b, ws, done);
         else if (act === 'maker') makerRound(stage, ws, done);
@@ -337,31 +336,30 @@
     G.redraw = draw; draw();
   }
 
-  /* ---------- STORY: drag each word into its gap ---------- */
-  G.route(/^#\/batch\/(b\d+)\/story\/([12])$/, function (id, part) {
-    part = +part;
+  /* ---------- ARTICLE: drag each of the 20 words into its gap ---------- */
+  G.route(/^#\/batch\/(b\d+)\/story(?:\/[12])?$/, function (id) {
     return G.loadBatch(id).then(b => {
       const lv = G.level();
-      const pg = playerPage(esc(t('station.story')) + ' · ' + esc(t('common.part', { n: part })), '#/batch/' + id, '#/batch/' + id);
-      pg.mount = root => storyPart(G.$('#stage', root), b, lv, part);
+      const pg = playerPage(esc(t('station.story')), '#/batch/' + id, '#/batch/' + id);
+      pg.mount = root => storyPart(G.$('#stage', root), b, lv);
       return pg;
     });
   });
 
-  function storyPart(stage, b, lv, part) {
-    const data = b.stories[lv].parts[part - 1], gaps = data.gaps;
+  function storyPart(stage, b, lv) {
+    const data = b.stories[lv].parts[0], gaps = data.gaps;
     const wordOf = id => b.words.find(w => w.id === id);
     const tries = gaps.map(() => 0), state = { done: false };
     const pieces = data.text.split(/(\[\[\d+\]\])/);
     let bankOrder = G.shuffle(gaps.map((g, k) => k));
 
     function draw() {
-      setProg(part - 1, 2);
+      setProg(0, 1);
       const body = pieces.map(p => { const m = p.match(/^\[\[(\d+)\]\]$/); return m ? '<span class="gap dz" data-g="' + (m[1] - 1) + '" role="button" tabindex="0" aria-label="' + esc(t('story.gapN', { n: m[1] })) + '"><span class="n">' + m[1] + '</span></span>' : esc(p); }).join('');
       stage.innerHTML = '<div class="row between wrap" style="width:100%"><h3>' + esc(data.title) + '</h3><span class="hint-text">' + esc(t('story.sub')) + '</span></div>' +
         '<div class="story" id="story">' + body + '</div>' +
         '<div class="hint-text">' + esc(t('story.bank')) + '</div>' +
-        '<div class="bank" id="bank">' + bankOrder.map(k => chipHtml(k)).join('') + '</div>' +
+        '<div class="bank sticky" id="bank">' + bankOrder.map(k => chipHtml(k)).join('') + '</div>' +
         '<div class="hint-text" id="fb" style="min-height:22px"></div><div class="row wrap" id="nx" style="justify-content:center"><button class="btn primary" data-act="sCheck">' + G.icon('check') + esc(t('common.check')) + '</button></div>';
       const bank = G.$('#bank', stage);
       const d = G.dnd.attach(stage, {
@@ -373,7 +371,7 @@
           gap.classList.remove('wrong'); gap.appendChild(chip); gap.classList.add('filled'); sync();
         }
       });
-      chip_dblclick();
+      if (!stage.__dbl) { stage.__dbl = true; chip_dblclick(); }
     }
     function chipHtml(k) {
       const g = gaps[k], w = wordOf(g.w);
@@ -410,13 +408,13 @@
     };
     function complete() {
       if (state.done) return; state.done = true;
-      const p = G.pg(b.id, lv); p.story[part - 1] = 1; G.save();
+      const p = G.pg(b.id, lv); p.story[0] = 1; G.save();
       G.$$('.gap .chip', stage).forEach(c => { c.classList.add('ok'); c.setAttribute('data-peek', c.dataset.w); });
       const fb = G.$('#fb', stage); fb.textContent = G.$$('.gap.reveal', stage).length ? t('story.showAnswer') : t('story.allCorrect');
       const full = pieces.map(x => { const m = x.match(/^\[\[(\d+)\]\]$/); return m ? gaps[m[1] - 1].form : x; }).join('');
       const star = G.hasStar(b.id, lv);
       G.$('#nx', stage).innerHTML = '<button class="btn ghost" data-act="say" data-say="' + esc(full) + '">' + G.icon('speaker') + esc(t('story.readAgain')) + '</button>' +
-        (part === 1 ? '<a class="btn primary" href="#/batch/' + b.id + '/story/2">' + esc(t('story.nextPart', { n: 2 })) + G.icon('arrow') + '</a>' : '<a class="btn primary" href="#/batch/' + b.id + '">' + esc(t('story.finish')) + G.icon('arrow') + '</a>') +
+        '<a class="btn primary" href="#/batch/' + b.id + '">' + esc(t('story.finish')) + G.icon('arrow') + '</a>' +
         '<button class="btn ghost" data-act="sAgain">' + G.icon('refresh') + esc(t('common.again')) + '</button>';
       if (star) { fb.textContent += ' ⭐ ' + t('story.starEarned'); }
       G.confetti(); G.touchStreak();
@@ -426,16 +424,15 @@
     draw();
   }
 
-  /* ---------- GAMES: letter tiles, missing letters, spelling bee on the current batch ---------- */
-  G.route(/^#\/play\/(build|missing|bee)\/(b\d+)\/([12])$/, function (act, id, part) {
-    part = +part;
+  /* ---------- GAMES: letter tiles, missing letters, spelling bee on the current lesson ---------- */
+  G.route(/^#\/play\/(build|missing|bee)\/(b\d+)(?:\/[12])?$/, function (act, id) {
     return G.loadBatch(id).then(b => {
-      const pg = playerPage(esc(t('games.title')) + ' · ' + esc(t('act.' + act)) + ' · ' + esc(t('common.part', { n: part })), '#/games', '#/games');
+      const pg = playerPage(esc(t('games.title')) + ' · ' + esc(t('act.' + act)), '#/games', '#/games');
       pg.mount = root => {
-        const stage = G.$('#stage', root), ws = partWords(b, part), lv = G.level();
+        const stage = G.$('#stage', root), ws = b.words, lv = G.level();
         const done = (score, total) => {
-          const p = G.pg(id, lv); p[act][part - 1] = score; G.save();
-          finishCard(stage, { emoji: '🏆', title: t('pick.score', { n: score, m: total }), actions: [{ label: part === 1 ? t('common.part', { n: 2 }) : t('games.title'), href: part === 1 ? '#/play/' + act + '/' + id + '/2' : '#/games', primary: true }, { label: t('common.again'), act: 'gAgain' }] });
+          const p = G.pg(id, lv); p[act][0] = score; G.save();
+          finishCard(stage, { emoji: '🏆', title: t('pick.score', { n: score, m: total }), actions: [{ label: t('games.title'), href: '#/games', primary: true }, { label: t('common.again'), act: 'gAgain' }] });
         };
         G.acts.gAgain = () => G.render();
         if (act === 'bee') beeRound(stage, ws, done); else buildRound(stage, ws, { mode: act, onDone: done });

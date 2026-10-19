@@ -1,4 +1,4 @@
-# Batch 1: recording sheet
+# Lesson 1: recording sheet
 
 Status of the content: draft. Read the sheet from top to bottom. Section 2 is for recording each word on its own; those clips can be added to the app's audio folder.
 
@@ -125,29 +125,17 @@ One clean take per word, with a short pause between words:
 - **relative**: Because I have a relative in Canada, I want to go there someday.
 - **set**: After the guests arrived, my aunt set cups of hot tea on the table.
 
-## 4. The stories
+## 4. The article
 
-### Beginner, part 1: Sam's Rainy Sunday
+### Beginner: Sam's Sunday
 
-Sam sits on a **chair**. His legs are **sore** after the game. Sunday is **boring**. Sam wants to **go** outside, but it rains. His sister brings **tea**. Sam drinks it with a smile. It gives him **pleasure**. Soon the rain stops. Sam runs out. “Come **back** soon!” says his sister. A dog runs by. It is **crazy**! Sam sees the sky. “The **Earth** is big,” he says. His sister comes out. Sam **holds** her hand.
+Sam sits on a **chair**. His legs are **sore** after the game. Sunday is **boring**. Sam wants to **go** out to play. But it rains. His sister brings **tea**. Sam drinks it with a smile. It gives him **pleasure**. Soon the rain stops. Sam runs out. “Come **back** soon!” says his sister. A dog runs by. It is **crazy**! Sam sees the sky. “The **Earth** is big,” he says. His sister comes out. Sam **holds** her hand. Now it is dinner time. Sam is a **kid** with a big family. His **mother** and father cook dinner. A **relative** comes to eat. He is Sam's uncle. Sam helps to **set** the table. Then the cat and the dog **fight**! Amy is Sam's sister. She has the **ability** to make them stop. She can **look** at the dog. “Stop!” she says. Soon they are quiet. Then she can **touch** the cat. Everyone eats **well**. After dinner, Sam has an **online** class.
 
-### Beginner, part 2: Sunday Dinner
+### Intermediate: A Camp Night and a School Fair
 
-Sam is a **kid** with a big family. His **mother** and father cook dinner. A **relative** comes to eat. He is Sam's uncle. Sam helps to **set** the table. Then the cat and the dog **fight**! Amy is Sam's sister. She has the **ability** to make them stop. She can **look** at the dog. “Stop!” she says. Soon they are quiet. Then she can **touch** the cat. Everyone eats **well**. After dinner, Sam has an **online** class.
+Last Saturday, I sat on a **chair** by the fire at camp. My legs were **sore** after the long walk. The camp was quiet and a little **boring**. “Let's **go** to the lake,” said my friend Lily. First, we drank hot **tea** to stay warm. At the lake, we met an old man. “Camping gives me great **pleasure**,” he said. Then we walked **back** to the camp. That night, the wind was **crazy** and loud. I saw the stars and thought about the **Earth**. I **held** my warm cup in both hands. The next week, my school had a fair. At the school fair, every **kid** under ten got a free ticket. My **mother** came with my little brother and me. She made us lunch. A **relative** from Canada also came to see us. He is my uncle. My brother helped to **set** the table. Two students began to **fight** over a prize. Our teacher had the **ability** to make everyone calm. She **looked** at them and they stopped. Then I **touched** a soft rabbit with one finger. My brother played the drums very **well**. That night, we saw the pictures on an **online** page.
 
-### Intermediate, part 1: A Night at Camp
+### Advanced: A Rainy Day and a Family Party
 
-Last Saturday, Amy sat on a **chair** by the fire at camp. Her legs were **sore** after the long walk. The camp was quiet and a little **boring**. “Let's **go** to the lake,” said her friend Lily. First, they drank hot **tea** to stay warm. At the lake, they met an old man. “Camping gives me great **pleasure**,” he said. Then they walked **back** to the camp. That night, the wind was **crazy** and loud. Amy saw the stars and thought about the **Earth**. She **held** her warm cup with both hands.
-
-### Intermediate, part 2: The School Fair
-
-At the school fair, every **kid** got a free ticket. My **mother** came with my little brother and me. She made us lunch. A **relative** from Canada also came to see us. He is my uncle. My brother helped to **set** the table. Two students began to **fight** over a prize. Our teacher had the **ability** to make everyone calm. She **looked** at them and they stopped. Then I **touched** a soft rabbit gently. My brother played the drums very **well**. That night, we saw the pictures on an **online** page.
-
-### Advanced, part 1: Rain at Grandfather's House
-
-When the rain began, my grandfather sat down in his old **chair** by the window. His knees were **sore** from working in the garden all morning. He said the rainy afternoon was **boring** unless someone told a story. “Let's **go** to the market and find a story,” I said. First, he made hot **tea**, and we drank it slowly in the kitchen. “It is a real **pleasure** to spend time with you,” he said. At the market, a woman had a **crazy** idea: she gave free hats to everyone. My grandfather told me that the **Earth** needs rain, so he never complains about it. Later we walked **back** home through the wet streets. On the way, he **held** my hand because the road was slippery.
-
-### Advanced, part 2: Lucy's Family Party
-
-My cousin Lucy was a shy little **kid** when she first moved next door. Her **mother** works at a bank, so Lucy often stayed with us after school. Every **relative** of ours came to her party last summer, even our aunts and uncles from far away. My aunt **set** the table while the children played in the yard. Two cousins started to **fight** over the last piece of cake, but my uncle stopped them. Lucy has the **ability** to make people laugh, even when they are angry. She **looked** at them and made a funny face, and soon everyone was laughing. After that, nobody **touched** the cake until she said it was time. She sings **well** and plays the guitar, so we asked her to perform. Later, her grandmother in Japan watched the show on an **online** video call.
+When the rain began, my grandfather sat down in his old **chair** by the window. His knees were **sore** from working in the garden all morning. He said the rainy afternoon was **boring** unless someone told a story. “Let's **go** to the market and find a story,” I said. First, he made hot **tea**, and we drank it slowly in the kitchen. “It is a real **pleasure** to spend time with you,” he said. At the market, a woman had a **crazy** idea: she gave free hats to everyone. My grandfather told me that the **Earth** needs rain, so he never complains about it. Later we walked **back** home through the wet streets. On the way, he **held** my hand tightly because the road was slippery. I also remember last summer's party for my cousin Lucy. Lucy was a shy little **kid** when she first moved next door. Her **mother** works at a bank, so Lucy often stayed with us after school. Every **relative** of ours came to her party, even our aunts and uncles from far away. My aunt **set** the table while the children played in the yard. Two cousins started to **fight** over the last piece of cake, but my uncle stopped them. Lucy has the **ability** to make people laugh, even when they are angry. She **looked** at them and made a funny face, and soon everyone was laughing. After that, nobody **touched** the cake until she said it was time. She sings **well** and plays the guitar, so we asked her to perform. Later, her grandmother in Japan watched the show on an **online** video call.
 

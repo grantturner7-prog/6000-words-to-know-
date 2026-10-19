@@ -23,8 +23,8 @@ ROOT = Path(__file__).resolve().parent.parent
 LEVELS = ("beginner", "intermediate", "advanced")
 BAND = {"beginner": 1, "intermediate": 2, "advanced": 3}
 SENTENCE_CAP = {"beginner": 8, "intermediate": 12, "advanced": 18}
-PART_WORDS = {"beginner": (45, 90), "intermediate": (80, 130), "advanced": (110, 175)}
-GAPS_PER_PART = 10
+ARTICLE_WORDS = {"beginner": (90, 190), "intermediate": (160, 270), "advanced": (220, 360)}
+GAPS_PER_ARTICLE = 20
 WORDS_PER_BATCH = 20
 BANNED = {"stupid", "dumb", "idiot", "retard", "scam", "unfair"}   # student-facing wording rule
 
@@ -369,18 +369,18 @@ def check_batch(path, show_frames=False, translations=None):
     for lvl in LEVELS:
         parts = batch.get("stories", {}).get(lvl, {}).get("parts", [])
         where_l = f"{name} story [{lvl}]"
-        if len(parts) != 2:
-            rep.error(where_l, f"{len(parts)} parts, expected 2")
+        if len(parts) != 1:
+            rep.error(where_l, f"{len(parts)} articles, expected 1 article of {GAPS_PER_ARTICLE} gaps")
         used = []
         for pi, part in enumerate(parts, 1):
             where = f"{where_l} part {pi}"
             text = part.get("text", "")
             gaps = part.get("gaps", [])
             marks = [int(m) for m in re.findall(r"\[\[(\d+)\]\]", text)]
-            if marks != list(range(1, GAPS_PER_PART + 1)):
-                rep.error(where, f"gap marks must run [[1]] to [[{GAPS_PER_PART}]] in order, found {marks}")
-            if len(gaps) != GAPS_PER_PART:
-                rep.error(where, f"{len(gaps)} gaps, expected {GAPS_PER_PART}")
+            if marks != list(range(1, GAPS_PER_ARTICLE + 1)):
+                rep.error(where, f"gap marks must run [[1]] to [[{GAPS_PER_ARTICLE}]] in order, found {marks}")
+            if len(gaps) != GAPS_PER_ARTICLE:
+                rep.error(where, f"{len(gaps)} gaps, expected {GAPS_PER_ARTICLE}")
             gap_forms = []
             for g in gaps:
                 src = by_id.get(g.get("w"))
@@ -394,7 +394,7 @@ def check_batch(path, show_frames=False, translations=None):
                 gap_forms.append(norm(g.get("form", "")))
             plain = re.sub(r"\[\[\d+\]\]", " ", text)
             n_words = len(re.findall(r"[A-Za-z']+", plain)) + len(gaps)
-            lo, hi = PART_WORDS[lvl]
+            lo, hi = ARTICLE_WORDS[lvl]
             if not lo <= n_words <= hi:
                 rep.error(where, f"{n_words} words (allowed {lo} to {hi})")
             for sent in sentences(text):

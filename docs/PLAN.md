@@ -1,6 +1,6 @@
 # Genesis 6,000 English Words to Know: project plan
 
-Drafted 2026-10-19. Status (2026-10-19): the word list arrived as pasted text, and **Phases 0 to 4 are built and audited** (`docs/audit/`). Batches 1 and 2 are playable at all three levels. Batch 1 also has its Chinese translations and three level PDFs for the owner's videos (`docs/audit/batch-01-chinese-and-pdfs.md`). Next: the owner's videos and conversations for Batch 1, a teacher's read of both batches, a decision on voices, and a trial with a few students, then Phase 5.
+Drafted 2026-10-19. Status (2026-10-19): the word list arrived as pasted text, and **Phases 0 to 4 are built and audited** (`docs/audit/`). Lesson 1 (20 words) is playable at all three levels, with one 20-gap article per level, and has its Chinese translations and three level PDFs for the owner's videos (`docs/audit/batch-01-chinese-and-pdfs.md`, `docs/audit/one-lesson-flow.md`). Next: the owner's videos and conversations for Lesson 1, a teacher's read of Lesson 1, a decision on voices, and a trial with a few students, then Phase 5.
 
 ## Owner decisions, second review (2026-10-19)
 1. **Batches.** Each batch has 20 words, which gives 298 batches for the 5,944 main words, plus the 65 Little Words. The course is self-paced: a student may finish as many batches in a week as they like. The suggested pace is one batch a week, with the owner's video for that batch (section 5 has the arithmetic).
@@ -10,6 +10,9 @@ Drafted 2026-10-19. Status (2026-10-19): the word list arrived as pasted text, a
 4. **Per level (confirmed 2026-10-19).** One batch is 20 words and has three levels. Each level has its own video, its own English conversation, its own Chinese conversation and its own story: three of each per batch, which is 894 videos for the course. The Chinese conversation is in Chinese with the English words kept inside it, to explain how to use the words. The owner makes the videos and the conversations (with Gemini and NotebookLM) from one PDF per level that this project supplies, and hosts them with a video and audio service of their own (Cloudflare), linked into the app afterwards. This project does not make the videos or conversations.
 
 What this project supplies for each batch: a PDF per level with the 20 words, the Chinese meanings, the example sentences, the sentence patterns with sample sentences, the story, and the Chinese for all of it (`docs/pdf/`, made by `scripts/make_level_pdfs.py` from `content/translations/`).
+
+## Words used in this plan
+A **lesson** is 20 words, and it is what the app and the owner call a lesson. Older parts of this plan and the file names say **batch**, so batch 1 is Lesson 1 (`b001`). A lesson is **not** split into sets or parts any more: Meet, Use, the spelling games and the Article each cover all 20 words, and each level has **one article with 20 gaps** (decided by the owner, 2026-10-19, after the sets of five and the two-part stories were seen to confuse). The second lesson, written before the owner asked for it, is kept in `content/drafts/` and is not in the app.
 
 ## 1. The product in one paragraph
 A web app for phone, iPad and desktop (it must work inside LINE's browser) that teaches 6,000 English words to second-language students in Taiwan, roughly grades 6 to 9 and up. Words arrive in **batches of 20**. Each batch is learned at three levels, **Beginner, Intermediate and Advanced**, with tap-and-drag activities only: no typing and no AI marking. Tapping any word shows its meaning in English and Traditional Chinese, and one switch turns the Chinese on or off. The look is the same liquid-glass design as the IELTS app, in light and dark. Sold as *Genesis 6,000 English Words to Know* for NT$399 (about US$10), one purchase.
@@ -36,7 +39,7 @@ The PDF is the **Senior High English Reference Word List** from the College Entr
 ## 3. Recommendations at a glance
 | Question | Recommendation |
 |---|---|
-| Batch size | **20 words per batch**, taught as **4 sets of 5**. Five is the most a student should meet before practising. |
+| Lesson size | **20 words per lesson, all in one run** (the owner's decision, 2026-10-19). Earlier drafts split a lesson into 4 sets of 5, based on working memory of about four chunks; the app now keeps one 20-word flow and, to stay readable, Match it shows five words on screen at a time with one count for the whole lesson. |
 | Weekly pace | Default **one batch a week** (about 20 minutes a day, five days). Offer **two a week** for students who want to finish sooner. |
 | How long is 6,000? | 298 batches. At one a week that is about 7.5 school years; at two a week about 3.75 (table in section 5). Present the app as a **library to move through at your own pace**, not a one-year course. |
 | Levels | Defined by **sentence and text rules**, not by splitting the word list. Every word can be met at all three levels. |
@@ -97,7 +100,7 @@ At the top of a batch: the **level switch** (Beginner, Intermediate, Advanced), 
 
 *Update (2026-10-19):* the owner has added two stations in front of these three, **Watch** (the owner's video) and **Talk** (an English and a Chinese conversation); see "Owner decisions". The three stations below are built and tested. Watch and Talk wait on questions 9 to 11 in section 14.
 
-**Station 1: Meet** (run once per set of 5 words, about 10 minutes)
+**Station 1: Meet** (all 20 words in one run, about 25 minutes; Match it shows five words on screen at a time)
 1. **Word cards.** Tap to see the English meaning, the Chinese (if on), a sentence at the chosen level, and hear the word.
 2. **Match it.** Drag each word onto its meaning (English, Chinese or a picture).
 3. **Build it.** Drag letter tiles to spell the word.
@@ -107,9 +110,9 @@ At the top of a batch: the **level switch** (Beginner, Intermediate, Advanced), 
 2. **Sentence Maker.** Build your own sentence from tiles (section 8).
 3. **Spelling Bee.** Hear the word, choose the correct spelling.
 
-**Station 3: Story** (about 10 minutes)
+**Station 3: Article** (one article with 20 gaps, about 15 minutes)
 1. **Read** the story at the chosen level; tap any word to peek at its meaning.
-2. **Fill the gaps.** Drag words from the word bank into the gaps, Part 1 then Part 2.
+2. **Fill the gaps.** Drag the 20 words from the word bank into the 20 gaps of the one article.
 3. **Check.** Each gap is marked. Words that do not fit return to the bank for another try. After two tries the answer is shown with a short reason. Stars are awarded per level.
 
 Words that need practice enter the Quick Review schedule automatically.
@@ -231,7 +234,7 @@ Answered by the build: the PDF is the public CEEC list (question 1 of the first 
 3. **Default pace:** one batch a week with a two-a-week option? *Recommended: yes.*
 4. **Level order:** free choice with a nudge to climb, or locks? *Built as free choice.*
 5. **Launch scope:** all 298 batches on day one, or Stage by Stage? *Recommended: decide once a teacher has timed the review of Batch 1.*
-6. **Audio:** the app speaks with the voices installed on each device. They are ranked so the most natural one is used, and Settings lets a student pick another, but the owner found the result robotic on their device and quality will vary. Recorded or neural text-to-speech files for every word and example, reviewed by the teacher, would sound the same on every device. *Recommended: yes, before launch. Choose one:* (a) the owner or a teacher records the clips; (b) a commercial text-to-speech service with a licence for a paid product, which needs an account and key from the owner; (c) keep device voices only. The app already plays a clip when one is listed in `audio/index.json` and falls back to the device voice otherwise (`audio/README.md`), so clips can be added without rebuilding. From the two written batches, the full course is about 25,000 clips and 1.8 million characters (`python3 scripts/audio_manifest.py`); at typical neural-voice prices of a few to a few tens of US dollars per million characters, that is a small cost, to be confirmed with the chosen provider.
+6. **Audio:** the app speaks with the voices installed on each device. They are ranked so the most natural one is used, and Settings lets a student pick another, but the owner found the result robotic on their device and quality will vary. Recorded or neural text-to-speech files for every word and example, reviewed by the teacher, would sound the same on every device. *Recommended: yes, before launch. Choose one:* (a) the owner or a teacher records the clips; (b) a commercial text-to-speech service with a licence for a paid product, which needs an account and key from the owner; (c) keep device voices only. The app already plays a clip when one is listed in `audio/index.json` and falls back to the device voice otherwise (`audio/README.md`), so clips can be added without rebuilding. Estimated from Lesson 1, the full course is about 25,000 clips and 1.7 million characters (`python3 scripts/audio_manifest.py`); at typical neural-voice prices of a few to a few tens of US dollars per million characters, that is a small cost, to be confirmed with the chosen provider.
 7. **Engine:** build the learning app and content in this repo, then connect it to the shared accounts and payments engine as its own product (the TOEIC pattern)? *Recommended: yes.*
 8. **Reviewer:** who is the teacher who signs off each batch, and what share of later batches do they read in full?
 9. **Videos: decided.** One per level, so three per batch (see Owner decisions, point 4). Recording and editing time for 894 videos is the owner's largest piece of work; Batch 1 will show how long one batch takes.

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Make one PDF per level for a batch: the words, the Chinese, the sentence patterns and the story.
+"""Make one PDF per level for a lesson (20 words): the words, the Chinese, the sentence patterns and the article.
 
-  python3 scripts/make_level_pdfs.py content/batches/b001.json            writes docs/pdf/batch-001-beginner.pdf, -intermediate, -advanced
+  python3 scripts/make_level_pdfs.py content/batches/b001.json            writes docs/pdf/lesson-01-beginner.pdf, -intermediate, -advanced
   python3 scripts/make_level_pdfs.py --all
 
 Everything comes from content/batches/bNNN.json and content/translations/bNNN.json, so the PDFs match the app.
@@ -70,28 +70,24 @@ def page_html(batch, trans, plan_sets, lvl):
     n = int(batch["id"][1:])
     words = {w["id"]: w for w in batch["words"]}
     extra = trans.get("extraGloss", {})
-    h = [f"<!doctype html><html lang='en'><head><meta charset='utf-8'><title>Batch {n} {LABEL[lvl]}: words, sentence patterns and story</title><style>:root{{--acc:{ACCENT[lvl]}}}{CSS}</style></head><body>"]
-    h.append(f"<div class='kicker'>Genesis 6,000 English Words to Know</div><h1>Batch {n} · {LABEL[lvl]}</h1>")
-    h.append("<p class='sub'>The 20 words, the sentence patterns, the Chinese and the story for this level, exactly as the students see them in the app. Use these pages to make the video and the conversations, so what you say matches the app.</p>")
+    h = [f"<!doctype html><html lang='en'><head><meta charset='utf-8'><title>Lesson {n} {LABEL[lvl]}: words, sentence patterns and article</title><style>:root{{--acc:{ACCENT[lvl]}}}{CSS}</style></head><body>"]
+    h.append(f"<div class='kicker'>Genesis 6,000 English Words to Know</div><h1>Lesson {n} · {LABEL[lvl]}</h1>")
+    h.append("<p class='sub'>The 20 words, the sentence patterns, the Chinese and the article for this level, exactly as the students see them in the app. Use these pages to make the video and the conversations, so what you say matches the app.</p>")
     h.append("<div class='glance'>" + "".join(f"<div><b>{esc(a)}</b>{esc(b)}</div>" for a, b in GLANCE[lvl]) + "</div>")
     terms = trans.get("terms", {})
     if terms:
         h.append("<p class='terms'><b>Chinese names and family words used in these pages:</b> " + "; ".join(f"{esc(k)} = <span class='zh'>{esc(v)}</span>" for k, v in terms.items()) + "</p>")
 
-    h.append("<h2>1. The 20 words</h2><p class='sub'>Students meet them in four sets of five. The Chinese meaning is what the app shows when a student taps the word.</p>")
-    n_ = 0
-    for si, s in enumerate(plan_sets, 1):
-        h.append(f"<div class='setname'>Set {si}</div><table><tr><th></th><th>Word</th><th>Type</th><th>中文</th><th>English meaning</th></tr>")
-        for wid in s:
-            w = words[wid]; n_ += 1
-            h.append(f"<tr><td class='n'>{n_}</td><td class='w'>{esc(w['headword'])}</td><td>{POS.get(w['pos'], w['pos'])}</td><td class='zh'>{esc(w['zhTW'])}</td><td>{esc(w['defEN'])}</td></tr>")
-        h.append("</table>")
+    h.append("<h2>1. The 20 words</h2><p class='sub'>Students meet all 20 words together. The Chinese meaning is what the app shows when a student taps the word.</p>")
+    h.append("<table><tr><th></th><th>Word</th><th>Type</th><th>中文</th><th>English meaning</th></tr>")
+    for n_, w in enumerate(batch["words"], 1):
+        h.append(f"<tr><td class='n'>{n_}</td><td class='w'>{esc(w['headword'])}</td><td>{POS.get(w['pos'], w['pos'])}</td><td class='zh'>{esc(w['zhTW'])}</td><td>{esc(w['defEN'])}</td></tr>")
+    h.append("</table>")
 
     h.append("<h2>2. Each word in sentences</h2><p class='sub'>For each word: the example sentence, the sentence pattern students build in the Sentence Maker (one tile from each column; the highlighted column holds the word), and two sentences made from the pattern.</p>")
-    n_ = 0
-    for s in plan_sets:
-        for wid in s:
-            w = words[wid]; n_ += 1
+    for n_, w in enumerate(batch["words"], 1):
+        wid = w["id"]
+        if True:
             frame = w["frames"][lvl]["rows"]
             ex_en = w["examples"][lvl]; ex_zh = trans["examples"][wid][lvl]
             cols = []
@@ -105,13 +101,13 @@ def page_html(batch, trans, plan_sets, lvl):
                      f"<div class='line'><div class='t'>Example</div><div>{en_marked(ex_en)}<br><span class='zh'>{esc(ex_zh)}</span></div></div>"
                      f"<div class='pattern'>{pattern}</div>{smp}</div>")
 
-    h.append("<div style='break-before:page'></div><h2 style='margin-top:0'>3. The story</h2><p class='sub'>The story comes in two parts of ten gaps each. Students drag the words into the gaps. Here the words are filled in and shown in colour.</p>")
-    for pi, part in enumerate(batch["stories"][lvl]["parts"], 1):
-        gaps = {i: g["form"] for i, g in enumerate(part["gaps"], 1)}
-        en = re.sub(r"\[\[(\d+)\]\]", lambda m: f"<mark>{esc(gaps[int(m.group(1))])}</mark>", esc(part["text"]).replace("[[", "[[").replace("]]", "]]"))
-        rows = "".join(f"<tr><td class='n'>{i}</td><td class='w'>{esc(g['form'])}</td><td class='zh'>{esc(words[g['w']]['zhTW'])}</td></tr>" for i, g in enumerate(part["gaps"], 1))
-        h.append(f"<div class='story'><h3>Part {pi} · {esc(part['title'])}</h3><p class='en'>{en}</p><p class='zh'>{esc(trans['stories'][lvl][pi - 1])}</p>"
-                 f"<table><tr><th>Gap</th><th>Word in the story</th><th>中文</th></tr>{rows}</table></div>")
+    part = batch["stories"][lvl]["parts"][0]
+    gaps = {i: g["form"] for i, g in enumerate(part["gaps"], 1)}
+    en = re.sub(r"\[\[(\d+)\]\]", lambda m: f"<mark>{esc(gaps[int(m.group(1))])}</mark>", esc(part["text"]))
+    rows = "".join(f"<tr><td class='n'>{i}</td><td class='w'>{esc(g['form'])}</td><td class='zh'>{esc(words[g['w']]['zhTW'])}</td></tr>" for i, g in enumerate(part["gaps"], 1))
+    h.append("<div style='break-before:page'></div><h2 style='margin-top:0'>3. The article</h2><p class='sub'>One article with 20 gaps. Students drag the 20 words into the gaps. Here the words are filled in and shown in colour.</p>")
+    h.append(f"<div class='story'><h3>{esc(part['title'])}</h3><p class='en'>{en}</p><p class='zh'>{esc(trans['stories'][lvl][0])}</p>"
+             f"<table><tr><th>Gap</th><th>Word in the article</th><th>中文</th></tr>{rows}</table></div>")
     h.append("</body></html>")
     return "".join(h)
 
@@ -126,8 +122,8 @@ def make(batch_path, out_dir):
     sets = next(b for b in plan["batches"] if b["id"] == batch["id"])["sets"]
     n = int(batch["id"][1:])
     out_dir.mkdir(parents=True, exist_ok=True)
-    jobs = [{"html": page_html(batch, trans, sets, lvl), "pdf": str(out_dir / f"batch-{n:03d}-{lvl}.pdf"),
-             "footer": f"Genesis 6,000 English Words to Know · Batch {n} · {LABEL[lvl]}"} for lvl in LEVELS]
+    jobs = [{"html": page_html(batch, trans, sets, lvl), "pdf": str(out_dir / f"lesson-{n:02d}-{lvl}.pdf"),
+             "footer": f"Genesis 6,000 English Words to Know · Lesson {n} · {LABEL[lvl]}"} for lvl in LEVELS]
     env = dict(os.environ)
     if "NODE_PATH" not in env:
         env["NODE_PATH"] = subprocess.run(["npm", "root", "-g"], capture_output=True, text=True).stdout.strip()

@@ -256,6 +256,45 @@ const hintText = page => page.$eval('.bighint', e => Array.from(e.childNodes).fi
     await page.setViewportSize({ width: 1280, height: 900 });
   });
 
+  console.log('Watch and listen');
+  const hubLevel = async lv => { await page.locator('[data-act=setLevel][data-v=' + lv + ']').first().click(); await page.waitForSelector('.shell[data-level=' + lv + ']'); await page.waitForSelector('.mtile'); };
+  const mediaTexts = () => page.$$eval('.mtile', els => els.map(e => ({ title: e.querySelector('b').textContent.trim(), sub: e.querySelector('small').textContent.trim(), tag: e.tagName, href: e.getAttribute('href'), target: e.getAttribute('target'), rel: e.getAttribute('rel'), off: e.classList.contains('off'), soon: !!e.querySelector('.pill') })));
+  await test('each level shows Watch the video and Listen to an in-depth conversation, each with its subtitle, and Coming soon until a link is added', async () => {
+    for (const lv of ['beginner', 'intermediate', 'advanced']) {
+      await setLevel(lv); await go('#/batch/b001', '.mtile');
+      const m = await mediaTexts(); assert.strictEqual(m.length, 2);
+      assert.deepStrictEqual(m.map(x => [x.title, x.sub]), [['Watch the video', 'Watch now: English video'], ['Listen to an in-depth conversation', 'Listen now: Chinese conversation about the words']]);
+      assert(m.every(x => x.off && x.soon && x.tag === 'BUTTON'), lv + ': no link yet');
+    }
+    await page.click('.mtile[data-kind=video]', { force: true }); await page.waitForFunction(() => document.getElementById('toasts').textContent.includes('This one is coming soon.'));
+  });
+  await test('links from content/media.json become new-tab buttons, are different for each level, and only https links are used', async () => {
+    await setLevel('beginner'); await go('#/batch/b001', '.mtile');
+    await page.evaluate(() => { G.media = { b001: { beginner: { video: 'https://media.example.com/lesson-1/beginner-video.mp4', talk: 'https://media.example.com/lesson-1/beginner-talk.mp3' }, intermediate: { video: 'https://media.example.com/lesson-1/intermediate-video.mp4', talk: 'http://media.example.com/not-secure.mp3' }, advanced: { video: 'javascript:alert(1)', talk: '' } } }; G.render(); });
+    await page.waitForSelector('a.mtile');
+    let m = await mediaTexts();
+    assert.deepStrictEqual(m.map(x => x.href), ['https://media.example.com/lesson-1/beginner-video.mp4', 'https://media.example.com/lesson-1/beginner-talk.mp3']);
+    assert(m.every(x => x.tag === 'A' && x.target === '_blank' && /noopener/.test(x.rel) && !x.off));
+    assert.deepStrictEqual(m.map(x => x.sub), ['Watch now: English video', 'Listen now: Chinese conversation about the words']);
+    await hubLevel('intermediate');
+    m = await mediaTexts();
+    assert.strictEqual(m[0].href, 'https://media.example.com/lesson-1/intermediate-video.mp4'); assert(m[1].off && m[1].tag === 'BUTTON', 'an http link is not used');
+    await hubLevel('advanced');
+    m = await mediaTexts(); assert(m.every(x => x.off && x.tag === 'BUTTON'), 'a javascript: link and an empty link are not used');
+  });
+  await test('in Traditional Chinese the buttons and their subtitles are in Chinese, and they fit a 390px phone', async () => {
+    await page.evaluate(() => { G.state.prefs.lang = 'zh'; G.save(); G.render(); }); await page.waitForSelector('.mtile');
+    await hubLevel('beginner');
+    const m = await mediaTexts();
+    assert.deepStrictEqual(m.map(x => [x.title, x.sub]), [['觀看影片', '立即觀看：英文影片'], ['收聽深入對談', '立即收聽：關於這些單字的中文對談']]);
+    await page.setViewportSize({ width: 390, height: 844 }); await page.waitForTimeout(200);
+    const r = await page.evaluate(() => ({ over: document.documentElement.scrollWidth - innerWidth, tiles: Array.from(document.querySelectorAll('.mtile')).map(e => { const b = e.getBoundingClientRect(); return [b.left, b.right]; }) }));
+    assert(r.over <= 1, 'overflow ' + r.over); assert(r.tiles.every(([l, rr]) => l >= 0 && rr <= 390), JSON.stringify(r.tiles));
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.evaluate(() => { G.state.prefs.lang = 'en'; G.save(); G.media = {}; G.render(); }); await page.waitForSelector('.mtile');
+    assert.strictEqual((await mediaTexts())[0].title, 'Watch the video');
+  });
+
   console.log('Games and the other stations');
   await test('Missing Letters (advanced) plays through all 20 words', async () => {
     await setLevel('advanced'); await go('#/play/missing/b001', '.slots');

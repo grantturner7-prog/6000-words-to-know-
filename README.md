@@ -24,6 +24,7 @@ The word list is the College Entrance Examination Center (CEEC) Senior High Engl
 | `content/batches/b001.json` | Lesson 1 in full |
 | `content/drafts/b002.json` | A second lesson written early, not in the app |
 | `content/translations/b001.json` | The Chinese for Batch 1's sentences, sample sentences and stories |
+| `content/media.json` | The Cloudflare links for each lesson and level: the English video (`video`) and the Chinese conversation (`talk`). Paste a link between the quotation marks and rebuild the demo; an empty one shows "Coming soon" |
 | `docs/pdf/` | One PDF per level for each lesson with Chinese: the words, patterns, samples and article, for making the videos |
 | `app/` | The front end: plain HTML, CSS and JavaScript, no build step |
 | `docs/recording/` | One reading sheet per written lesson, for recording the video and voice |

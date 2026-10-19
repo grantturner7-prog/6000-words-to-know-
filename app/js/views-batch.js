@@ -79,6 +79,7 @@
   const levelSupport = () => ({ beginner: 0, intermediate: 2, advanced: 3 }[G.level()]);
 
   /* ---------- lesson hub ---------- */
+  G.acts.mediaSoon = () => G.toast(t('media.soonMsg'));
   G.route(/^#\/batch\/(b\d+)$/, function (id) {
     if (!G.isBuilt(id)) { location.hash = '#/batches'; return new Promise(() => {}); }
     return G.loadBatch(id).then(b => {
@@ -88,9 +89,18 @@
       const use = [['pick', '🎯', p.pick[0] !== null], ['maker', '🧱', p.maker[0] > 0], ['bee', '🐝', p.bee[0] !== null]].map(([a, em, ok]) =>
         '<a class="act" href="#/batch/' + id + '/use/' + a + '"><span class="em">' + em + '</span><span class="grow">' + esc(t('act.' + a)) + '</span>' + tick(ok) + '</a>').join('');
       const article = '<a class="act" href="#/batch/' + id + '/story"><span class="em">📖</span><span class="grow">' + esc(b.stories[lv].parts[0].title) + '</span>' + tick(p.story[0] > 0) + '</a>';
+      const mediaTile = (kind, icon) => {
+        const url = G.mediaLink(id, lv, kind), ttl = t('media.' + kind), sub = t('media.' + kind + 'Sub');
+        const body = '<span class="ic">' + G.icon(icon) + '</span><span class="grow"><b>' + esc(ttl) + '</b><small>' + esc(sub) + '</small></span>' + (url ? '<span class="go">' + G.icon('arrow') + '</span>' : '<span class="pill">' + esc(t('media.soon')) + '</span>');
+        return url
+          ? '<a class="mtile" data-kind="' + kind + '" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer" aria-label="' + esc(ttl + '. ' + sub + '. ' + t('media.newTab')) + '">' + body + '</a>'
+          : '<button class="mtile off" data-kind="' + kind + '" data-act="mediaSoon" aria-disabled="true">' + body + '</button>';
+      };
+      const media = '<section class="glass card" data-level="' + lv + '"><h2>' + esc(t('media.title')) + '</h2><div class="mtiles" style="margin-top:14px">' + mediaTile('video', 'play') + mediaTile('talk', 'headphones') + '</div></section>';
       const words = b.words.map(w => '<button class="chip" data-peek="' + w.id + '" style="font-size:16px;min-height:42px;touch-action:auto">' + (w.emoji || '') + ' ' + esc(w.headword) + '</button>').join('');
       const inner = '<div class="hdr"><div><a class="sub" href="#/batches" style="font-weight:700">‹ ' + esc(t('nav.batches')) + '</a><h1>' + esc(t('batch.title', { n })) + '</h1><p class="sub">' + esc(t('batch.sub')) + '</p></div>' + G.starsHtml(id) + '</div>' +
         '<div class="glass card row between wrap" data-level="' + lv + '"><div class="stack tight grow" style="min-width:260px"><h2>' + esc(t('batch.level')) + '</h2>' + G.levelSeg() + '<span class="hint-text">' + esc(t('level.' + lv + '.d')) + '</span></div>' + zhSwitch() + '</div>' +
+        media +
         '<div class="grid g3" data-level="' + lv + '">' +
         '<section class="glass station tint"><div class="num">1</div><div><h3>' + esc(t('station.meet')) + '</h3><div class="sub">' + esc(t('station.meet.d')) + '</div></div><div class="acts">' + meet + '</div></section>' +
         '<section class="glass station tint"><div class="num">2</div><div><h3>' + esc(t('station.use')) + '</h3><div class="sub">' + esc(t('station.use.d')) + ' ' + esc(t('use.sub')) + '</div></div><div class="acts">' + use + '</div></section>' +

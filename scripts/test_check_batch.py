@@ -155,5 +155,35 @@ class CheckBatch(unittest.TestCase):
         self.assertEqual(run(m), [])
 
 
+class CheckMedia(unittest.TestCase):
+    def media(self, **links):
+        entry = {lv: {"video": "", "talk": ""} for lv in ("beginner", "intermediate", "advanced")}
+        for key, url in links.items():
+            lv, kind = key.split("_")
+            entry[lv][kind] = url
+        return {"b001": entry}
+
+    def test_empty_links_are_allowed(self):
+        self.assertEqual(cb.check_media(self.media(), ["b001"]), [])
+
+    def test_https_links_are_allowed(self):
+        self.assertEqual(cb.check_media(self.media(beginner_video="https://videos.example.com/lesson-1/beginner.mp4"), ["b001"]), [])
+
+    def test_other_schemes_are_rejected(self):
+        for bad in ("http://example.com/a.mp4", "javascript:alert(1)", "example.com/a.mp4", "https://exa mple.com"):
+            self.assertTrue(cb.check_media(self.media(advanced_talk=bad), ["b001"]), bad)
+
+    def test_a_lesson_without_an_entry_is_reported(self):
+        self.assertTrue(any("no entry for b002" in e for e in cb.check_media(self.media(), ["b001", "b002"])))
+
+    def test_a_missing_level_is_reported(self):
+        m = self.media(); del m["b001"]["intermediate"]
+        self.assertTrue(any("no intermediate entry" in e for e in cb.check_media(m, ["b001"])))
+
+    def test_unknown_keys_are_reported(self):
+        m = self.media(); m["b001"]["beginner"]["clip"] = ""
+        self.assertTrue(any("unknown key" in e for e in cb.check_media(m, ["b001"])))
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=1)

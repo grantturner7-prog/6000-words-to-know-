@@ -19,6 +19,8 @@
     game: '<rect x="2" y="7" width="20" height="11" rx="5"/><path d="M7 10v5M4.5 12.5h5"/><circle cx="16" cy="11.5" r="1"/><circle cx="18.5" cy="14" r="1"/>',
     chart: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
     gear: '<circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.5-2-3.4-2.3.9a7 7 0 0 0-2-1.2L14 3h-4l-.6 2.6a7 7 0 0 0-2 1.2l-2.3-.9-2 3.4 2 1.5A7 7 0 0 0 5 12c0 .4 0 .8.1 1.2l-2 1.5 2 3.4 2.3-.9a7 7 0 0 0 2 1.2L10 21h4l.6-2.6a7 7 0 0 0 2-1.2l2.3.9 2-3.4-2-1.5c.1-.4.1-.8.1-1.2z"/>',
+    play: '<circle cx="12" cy="12" r="9"/><path d="M10 8.5v7l6-3.5-6-3.5z"/>',
+    headphones: '<path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/>',
     speaker: '<path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/>',
     check: '<path d="M5 12.5l4.5 4.5L19 7"/>',
     x: '<path d="M6 6l12 12M18 6L6 18"/>',
@@ -207,7 +209,17 @@
     if (G.data.batches[id]) return Promise.resolve(G.data.batches[id]);
     return G.loadJSON(id, '../content/batches/' + id + '.json').then(b => { G.data.batches[id] = b; return b; });
   };
-  G.boot = () => G.loadJSON('batches').then(p => { G.data.plan = p; return G.loadJSON('audio', '../audio/index.json').then(c => { G.clips = c || {}; }, () => {}); });
+  G.boot = () => G.loadJSON('batches').then(p => {
+    G.data.plan = p;
+    return Promise.all([G.loadJSON('audio', '../audio/index.json').then(c => { G.clips = c || {}; }, () => {}),
+      G.loadJSON('media', '../content/media.json').then(m => { G.media = m || {}; }, () => {})]);
+  });
+  /* The Cloudflare link for a lesson's video or Chinese conversation at one level, or '' until the owner adds it. Only https links are used. */
+  G.media = {};
+  G.mediaLink = (batch, level, kind) => {
+    const u = G.media && G.media[batch] && G.media[batch][level] && G.media[batch][level][kind];
+    return typeof u === 'string' && /^https:\/\/[^\s"'<>]+$/.test(u.trim()) ? u.trim() : '';
+  };
   G.isBuilt = id => G.builtList().indexOf(id) >= 0;
   G.builtIds = ['b001'];   /* batches written and playable; the single-file build lists whatever it inlines */
   G.builtList = () => (window.G_INLINE ? Object.keys(window.G_INLINE).filter(k => /^b\d+$/.test(k)).sort() : G.builtIds);

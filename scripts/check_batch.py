@@ -452,6 +452,30 @@ def check_batch(path, show_frames=False, translations=None):
     return rep, len(words)
 
 
+def check_media(media, batch_ids):
+    """content/media.json: for each lesson and level, an optional https link to the video and the Chinese conversation."""
+    errors = []
+    for bid in batch_ids:
+        entry = media.get(bid)
+        if not isinstance(entry, dict):
+            errors.append(f"media.json: no entry for {bid}")
+            continue
+        for level in ("beginner", "intermediate", "advanced"):
+            links = entry.get(level)
+            if not isinstance(links, dict):
+                errors.append(f"media.json: {bid} has no {level} entry")
+                continue
+            for kind in ("video", "talk"):
+                url = links.get(kind, "")
+                if not isinstance(url, str) or (url and not re.fullmatch(r"https://[^\s\"'<>]+", url.strip())):
+                    errors.append(f"media.json: {bid} {level} {kind} must be empty or a link that starts with https:// (got {url!r})")
+            for extra in set(links) - {"video", "talk"}:
+                errors.append(f"media.json: {bid} {level} has an unknown key {extra!r}")
+        for extra in set(entry) - {"beginner", "intermediate", "advanced"}:
+            errors.append(f"media.json: {bid} has an unknown level {extra!r}")
+    return errors
+
+
 def main(argv):
     show = "--frames" in argv
     args = [a for a in argv if not a.startswith("--")]
@@ -469,6 +493,13 @@ def main(argv):
         for line in rep.errors + rep.warnings:
             print("  " + line)
         failed = failed or bool(rep.errors)
+    if "--all" in argv:
+        mp = ROOT / "content" / "media.json"
+        errs = check_media(json.loads(mp.read_text(encoding="utf-8")), [p.stem for p in paths]) if mp.exists() else ["media.json is missing"]
+        print(f"\nmedia.json: {len(errs)} errors")
+        for line in errs:
+            print("  " + line)
+        failed = failed or bool(errs)
     return 1 if failed else 0
 
 

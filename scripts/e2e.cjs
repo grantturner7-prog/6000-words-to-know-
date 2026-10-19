@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /* End-to-end test: plays Batch 1 in a real browser, at all three levels.
-   Run:  NODE_PATH=$(npm root -g) node scripts/e2e.cjs
+   Run:  NODE_PATH=$(npm root -g) node scripts/e2e.cjs          (the app, served from this folder)
+   or: DEMO=1 NODE_PATH=$(npm root -g) node scripts/e2e.cjs     (the single-file demo, opened straight from disk)
    It starts its own static server, so nothing else needs to be running.
    Needs the "playwright" package and a Chromium (set CHROME=/path/to/chrome if it is not found). */
 const http = require('http'), fs = require('fs'), path = require('path'), assert = require('assert');
@@ -34,7 +35,8 @@ const wordByZh = zh => B.words.find(w => w.zhTW === zh.trim());
 const hintText = page => page.$eval('.bighint', e => Array.from(e.childNodes).filter(n => n.nodeType === 3).map(n => n.textContent).join(''));
 
 (async () => {
-  const srv = await serve(), base = 'http://127.0.0.1:' + srv.address().port + '/app/index.html';
+  const srv = await serve();
+  const base = process.env.DEMO ? 'file://' + path.join(ROOT, 'demo/Genesis-6000-Words.html') : 'http://127.0.0.1:' + srv.address().port + '/app/index.html';
   const chrome = process.env.CHROME || ['/opt/pw-browsers/chromium-1194/chrome-linux/chrome'].find(p => fs.existsSync(p));
   const browser = await chromium.launch(chrome ? { executablePath: chrome, args: ['--no-sandbox'] } : { args: ['--no-sandbox'] });
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, colorScheme: 'dark' });
@@ -197,6 +199,13 @@ const hintText = page => page.$eval('.bighint', e => Array.from(e.childNodes).fi
   await test('progress survives a page reload', async () => {
     await go('#/today', '.ring'); await page.reload(); await page.waitForSelector('.ring');
     assert((await page.textContent('.hdr h1')).includes('Amy')); assert(Number(await page.textContent('.grid.g3 .stat:nth-child(2) b')) === 3);
+  });
+
+  await test('Clear my progress asks inside the page, then clears stars and sentences', async () => {
+    await go('#/progress', '.stat'); await page.click('[data-act=resetAsk]'); await page.waitForSelector('[data-act=resetYes]');
+    await page.click('[data-act=resetNo]'); await page.waitForSelector('[data-act=resetAsk]');
+    await page.click('[data-act=resetAsk]'); await page.click('[data-act=resetYes]'); await page.waitForFunction(() => document.querySelector('.stat b').textContent === '0');
+    const s = await state(page); assert.deepStrictEqual(s.progress, {}); assert.strictEqual(s.sentences.length, 0);
   });
 
   console.log('Phone width');

@@ -1,14 +1,25 @@
 # Genesis 6,000 English Words to Know: project plan
 
-Drafted 2026-10-19. Status: **waiting for owner sign-off on this plan, and for the PDF** (it did not reach the build session, so no word from the list has been used anywhere yet).
+Drafted 2026-10-19. Status (2026-10-19): the word list arrived as pasted text, and **Phases 0 to 4 are built and audited** (`docs/audit/`). Batch 1 is playable at all three levels. Next: owner review, a teacher's read of Batch 1, and a trial with a few students, then Phase 5.
 
 ## 1. The product in one paragraph
 A web app for phone, iPad and desktop (it must work inside LINE's browser) that teaches 6,000 English words to second-language students in Taiwan, roughly grades 6 to 9 and up. Words arrive in **batches of 20**. Each batch is learned at three levels, **Beginner, Intermediate and Advanced**, with tap-and-drag activities only: no typing and no AI marking. Tapping any word shows its meaning in English and Traditional Chinese, and one switch turns the Chinese on or off. The look is the same liquid-glass design as the IELTS app, in light and dark. Sold as *Genesis 6,000 English Words to Know* for NT$399 (about US$10), one purchase.
 
+## What the word list turned out to be
+The PDF is the **Senior High English Reference Word List** from the College Entrance Examination Center (CEEC), sorted by level (第一級 to 第六級) and again alphabetically. Facts from the transcription (`docs/audit/phase-0.md`):
+
+| | |
+|---|---|
+| Entries | **6,009** (the "6,000 words"). Levels 1 to 6 hold 1,002 / 1,000 / 1,002 / 1,002 / 1,002 / 1,001. |
+| Spellings taught | 6,202, because some entries pair words (*actor/actress*, *agree(ment)*, *he (him, his, himself)*). |
+| Function words | 65 (articles, pronouns, auxiliaries such as *the, I, will, can*), 55 of them in Level 1. They cannot be taught by dragging a word into a story gap, so they form a separate **Little Words** track (5 batches of 13), still to be designed. |
+| Batches | **298**: 297 of 20 words and a last one of 4. Stage = CEEC level, about 50 batches each. |
+| Why the levels matter | Each level is about 1,000 words, so the list already has a difficulty ladder. The app uses it twice: to order the batches, and as the **vocabulary band** of every text (a Beginner story may use only Level 1 words besides the taught ones). |
+
 ## 2. Rules for the whole build
 1. **One phase at a time, each ending in a small audit** filed at `docs/audit/phase-N.md`. The next phase starts after the owner signs off (same method as the TOEIC plan).
 2. **Content stays data** (`content/...`), validated by a script, never buried in code.
-3. **Original content only.** Headwords come from the PDF. Every definition, translation, example sentence, story and activity is written new. *Owner to confirm the rights to the PDF word list (see section 14).*
+3. **Original content only.** Headwords, parts of speech and levels come from the CEEC list, a public exam-centre document (reuse terms still to be confirmed before the product is sold). Every definition, translation, example sentence, story and activity is written new.
 4. **Standing owner rules carry over:** refer to learners as "students"; positive wording ("Try another word", never "Wrong"); at most three items per breakdown on student screens; no remarks about any group of people; no real student names.
 5. **Honest claims.** No promises of fluency or exam scores (see section 12).
 6. **Independent brand.** As with Genesis TOEIC, the app does not mention any other product.
@@ -18,7 +29,7 @@ A web app for phone, iPad and desktop (it must work inside LINE's browser) that 
 |---|---|
 | Batch size | **20 words per batch**, taught as **4 sets of 5**. Five is the most a student should meet before practising. |
 | Weekly pace | Default **one batch a week** (about 20 minutes a day, five days). Offer **two a week** for students who want to finish sooner. |
-| How long is 6,000? | 300 batches. At one a week that is about 7.5 school years; at two a week about 3.75 (table in section 5). Present the app as a **library to move through at your own pace**, not a one-year course. |
+| How long is 6,000? | 298 batches. At one a week that is about 7.5 school years; at two a week about 3.75 (table in section 5). Present the app as a **library to move through at your own pace**, not a one-year course. |
 | Levels | Defined by **sentence and text rules**, not by splitting the word list. Every word can be met at all three levels. |
 | Article length | **One article per level per batch, in two short parts** (10 words each), so no text is long and no text is crowded with gaps. |
 | "Use the word in my own sentence" | **Sentence Maker**: students build their own sentence from tiles. Every combination is grammatical by design, so no marking is needed. |
@@ -56,15 +67,15 @@ Cognitive load sets the **size of a set (5)**. Retention depends far more on **r
 **A Gentle week** (my estimate, to confirm in the pilot): four 10-minute sessions, one per set of 5 new words, plus a Story session of about 15 minutes, plus a 5-minute Quick Review each day. That is about 20 minutes a day. Earlier batches come back at Intermediate and Advanced in later weeks, which supplies the spacing.
 
 ## 6. The three levels
-Levels change the **sentences, the story, the support and the traps**, not the word list. The labels below (CEFR) are internal guides and never shown to students. The Advanced level stops at the top of what these students can read with confidence (low B1), by design. The checker script enforces the numbers; the pilot tunes them.
+Levels change the **sentences, the story, the support and the traps**, not the word list. The labels below (CEFR) are internal guides and never shown to students. The Advanced level stops at the top of what these students can read with confidence (low B1), by design. The checker script enforces the numbers; the pilot tunes them. (Story lengths were raised after drafting: ten gaps with one target word per sentence do not fit in 40 to 60 words.)
 
 | | Beginner | Intermediate | Advanced |
 |---|---|---|---|
 | Student goal | Use the word in a very simple sentence | Use it in a short, natural sentence with a detail | Use it in a longer sentence with a reason, time or contrast |
 | Internal target | A1 | A2 | A2+ to low B1 |
 | Sentences | Up to 8 words. Present simple, *is/are*, *I like/have/want*, *can* | Up to 12 words. Simple past, *will/going to*, *and/but/because* | Up to 18 words. *when/if/so/although*, *who/that*, comparisons |
-| Story length (each of 2 parts) | 40 to 60 words | 70 to 100 words | 100 to 140 words |
-| Other words in the story | From the most frequent ~1,000 words | Up to ~2,000 | Up to ~3,000 |
+| Story length (each of 2 parts) | 45 to 90 words | 80 to 130 words | 110 to 175 words |
+| Other words in the story | Level 1 words of the CEEC list only (about 1,000) | Levels 1 and 2 | Levels 1 to 3 |
 | Chinese switch (first run) | On | Off | Off |
 | Build it (spelling) | All letters given, scrambled | Plus 2 or 3 extra letters | Extra letters, audio only |
 | Other choices offered | Different parts of speech, easy to rule out | Same part of speech | Same part of speech, close in meaning or spelling |
@@ -119,7 +130,7 @@ All games are touch-first, last about two minutes, never take lives away, and fe
 
 ## 10. App shape
 - **Four tabs:** Today, Batches, Games, Progress. A glass **sidebar** on iPad and desktop, a floating glass **tab bar** on phone (as in the IELTS app).
-- **Screens:** Welcome ("Welcome to Genesis 6,000 English Words to Know"), Login and Account, Today (continue the current batch, Quick Review, streak), Batches (300 batches in 6 Stages of 1,000 words), Batch hub, the three station players, **Word Peek** (the tap-a-word popover), Games, Progress (words learned, stars, My Sentences).
+- **Screens:** Welcome ("Welcome to Genesis 6,000 English Words to Know"), Login and Account, Today (continue the current batch, Quick Review, streak), Batches (298 batches in 6 Stages, one per CEEC level), Batch hub, the three station players, **Word Peek** (the tap-a-word popover), Games, Progress (words learned, stars, My Sentences).
 - **Account panel:** interface language (Traditional Chinese or English), Light or Dark, reduce animation, Chinese switch, sign out.
 - **Design:** reuse the tokens and components from the IELTS app (`app/css/app.css` and `docs/design/glass.css`: glass fill, 22 px blur, light edge, sheen, light and dark themes). Level colours: **Beginner mint, Intermediate amber, Advanced violet**, taken from the existing palette.
 - **Tech:** static front end with no build step (as in IELTS). Drag and drop uses **Pointer Events**, with a **tap-then-tap** alternative, because the browser's built-in drag API is unreliable on touch. Interface strings live in translation files from day one. Progress is stored on the device first and syncs once accounts exist.
@@ -157,9 +168,9 @@ Files: `content/wordlist.json` (all 6,000 headwords from the PDF), `content/batc
 7. Student-facing text contains no negative wording from the banned list.
 8. A reviewer name and date are recorded before status can become `published`.
 
-The frequency list for gate 4 needs a licence check (a public list such as the New General Service List is the likely choice).
+The vocabulary band for gate 4 uses the CEEC list itself, so no outside frequency list or licence is needed.
 
-**Scale, honestly:** about 190 small pieces of content per batch (per word: meaning, Chinese, three example sentences, three Sentence Maker frames and a look-alike spelling, plus six story parts), so about 56,000 across 300 batches. Writing is the easy part. Quality assurance is the long pole. Plan on templates, the checker and **sampled** teacher review (every piece for Batches 1 to 5, then a fixed sample).
+**Scale, honestly:** about 190 small pieces of content per batch (per word: meaning, Chinese, three example sentences, three Sentence Maker frames and a look-alike spelling, plus six story parts), so about 56,000 across 298 batches. Writing is the easy part. Quality assurance is the long pole. Plan on templates, the checker and **sampled** teacher review (every piece for Batches 1 to 5, then a fixed sample).
 
 ## 12. Commerce, access and claims
 - **Price:** NT$399 (about US$10), one purchase, lifetime access. Reuse the commerce engine described in the IELTS repo's `docs/MONETISATION.md` (accounts, entitlement gate, ECPay or NewebPay, the seven-day-cancellation consent, e-invoice, refunds page) as a new product.
@@ -170,13 +181,23 @@ The frequency list for gate 4 needs a licence check (a public list such as the N
 ## 13. Phases, each ending in an audit
 **Phase 0: Decisions and word intake.** Deliverables: this plan signed off; the PDF received; `content/wordlist.json` extracted (headword, part of speech if given, original order, source page). Audit: the count matches the PDF; duplicates and odd entries listed; the owner confirms the order and any level information in the PDF.
 
+**Status (2026-10-19):** Done. 6,009 entries transcribed and parsed; counts per level are consistent with six levels of about 1,000. The original PDF file was not available, so the transcription should be re-checked against it (`docs/audit/phase-0.md`).
+
 **Phase 1: Batching.** Deliverables: a batch-builder script and `content/batches.json`. Rules: order easiest first; mix parts of speech; one word per family per batch; avoid near-synonyms together. Audit: five random batches read by the owner or the teacher.
+
+**Status (2026-10-19):** Done, with one change from the plan: function words leave the main stream (the Little Words track), and ordering inside a level is by alphabetical stride, not easiest-first, because no frequency list is used. 298 batches, no word-family clashes (`docs/audit/phase-1.md`).
 
 **Phase 2: Content standards and checker.** Deliverables: `docs/CONTENT-STANDARDS.md` and `scripts/check_batch.py` (section 11). Audit: the checker catches each defect in a set of deliberately broken sample batches.
 
+**Status (2026-10-19):** Done. `docs/CONTENT-STANDARDS.md`, `scripts/check_batch.py`, and 24 tests that break a copy of Batch 1 in one way each (`docs/audit/phase-2.md`).
+
 **Phase 3: Design system and app shell.** Deliverables: Welcome screen, sidebar and tab bar, light and dark, account panel, the Chinese switch, Word Peek, translation files. Audit: screenshots on phone, iPad and desktop in both themes; contrast check; every string in translation files.
 
+**Status (2026-10-19):** Done. Welcome, Today, Batches, Games, Progress, Settings, Word Peek, light and dark, English and Traditional Chinese, phone to desktop (`docs/audit/phase-3.md`, screenshots in `docs/audit/screens/`).
+
 **Phase 4: Batch 1 vertical slice (first 20 words).** Deliverables: Batch 1 written at all three levels; the three station players; Build it, Missing Letters and Spelling Bee; drag and drop with tap alternative; the Check flow. Audit: checker has 0 errors; a blind solve (independent AI solver) agrees with every key; teacher review filed; 3 to 5 students try it and the notes are filed.
+
+**Status (2026-10-19):** Built and checked by machine and by two independent AI reviewers. **Still open from this phase's audit list:** teacher review and a trial with 3 to 5 students (`docs/audit/phase-4.md`). Games Build it, Missing Letters and Spelling Bee are done; the arcade games are Phase 5.
 
 **Phase 5: Games, Quick Review, Progress.** Deliverables: the three arcade games, the five-box Quick Review, stars, streak, My Sentences, a placement check. Audit: Quick Review schedule tested with simulated days; each game played end to end on a phone.
 
@@ -187,17 +208,20 @@ The frequency list for gate 4 needs a licence check (a public list such as the N
 **Phase 8: Pilot and launch.** Deliverables: a pilot of at least 30 students over four weeks with set accuracy, one-week and four-week retention, and time on task; fixes; status from `draft` to `published`. Thirty students can flag problems and tune the pace; they cannot support learning-gain claims.
 
 ## 14. Open questions for the owner (with my recommendation)
-1. **The PDF.** Please send it again. Does it give part of speech, level or a topic order? Do you hold the rights to the list, or is it a public list?
-2. **Default pace:** one batch a week with a two-a-week option? *Recommended: yes.*
-3. **Level order:** free choice with a nudge, or locks? *Recommended: free choice.*
-4. **Launch scope:** all 300 batches on day one, or Stage by Stage? *Recommended: decide after Phase 4 shows how long one batch takes to produce.*
-5. **Audio:** browser voice for the prototype, then recorded or text-to-speech files reviewed by the teacher (the same approach you chose for TOEIC)? *Recommended: yes.*
-6. **Engine:** build the learning app and content in this repo, then connect it to the shared accounts and payments engine as its own product (the TOEIC pattern)? *Recommended: yes.*
-7. **Reviewer:** who is the teacher who signs off each batch?
+Answered by the build: the PDF is the public CEEC list (question 1 of the first draft), and its levels give the Stage structure.
+
+1. **Reuse terms of the CEEC list.** It is a public exam-centre document and only headwords, parts of speech and levels are used. Please confirm its reuse terms (or the permission you hold) before the product is sold.
+2. **Little Words.** Do you want the 65 function words taught as their own short track with grammar-pattern activities? *Recommended: yes, at the end of Stage 1.*
+3. **Default pace:** one batch a week with a two-a-week option? *Recommended: yes.*
+4. **Level order:** free choice with a nudge to climb, or locks? *Built as free choice.*
+5. **Launch scope:** all 298 batches on day one, or Stage by Stage? *Recommended: decide once a teacher has timed the review of Batch 1.*
+6. **Audio:** the prototype uses the browser's voice. Recorded or text-to-speech files reviewed by the teacher (as chosen for TOEIC)? *Recommended: yes, before launch.*
+7. **Engine:** build the learning app and content in this repo, then connect it to the shared accounts and payments engine as its own product (the TOEIC pattern)? *Recommended: yes.*
+8. **Reviewer:** who is the teacher who signs off each batch, and what share of later batches do they read in full?
 
 ## 15. Risks
 - **Content volume and quality assurance** (section 11).
-- **Word order in the PDF is unknown.** An alphabetical list needs re-ordering by difficulty.
+- **Order inside a level.** The list is alphabetical within each level, and the batches deal words by stride rather than easiest-first. A frequency list could improve this later.
 - **Early batches may be known already.** Placement and skip-ahead address this.
 - **The pace is a judgement** until the pilot supplies data.
-- **Licences:** the frequency list and any picture or audio source.
+- **Licences:** the CEEC list's reuse terms, and any picture or audio source. Picture cues are emoji today; speech uses the browser's own voice.

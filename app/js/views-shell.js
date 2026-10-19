@@ -132,9 +132,14 @@
       '<div class="grid g3"><div class="glass stat"><b>' + G.starCount() + '</b><span>' + esc(t('progress.stars')) + '</span></div><div class="glass stat"><b>' + G.metCount() + '</b><span>' + esc(t('today.met')) + '</span></div><div class="glass stat"><b>' + G.state.streak.count + '</b><span>' + esc(t('today.streak')) + '</span></div></div>' +
       '<h2>' + esc(t('batches.batch', { n: 1 })) + '</h2><div class="grid g3">' + rows + '</div>' +
       '<h2>' + esc(t('progress.sentences')) + '</h2><div class="stack tight">' + sentences + '</div>' +
-      '<section class="glass card"><h3>' + esc(t('progress.resetTitle')) + '</h3><p class="sub" style="margin:6px 0 14px">' + esc(t('progress.resetText')) + '</p><button class="btn ghost" data-act="resetProgress">' + esc(t('progress.resetDo')) + '</button></section>';
+      '<section class="glass card" id="resetBox"><h3>' + esc(t('progress.resetTitle')) + '</h3><p class="sub" style="margin:6px 0 14px">' + esc(t('progress.resetText')) + '</p><button class="btn ghost" data-act="resetAsk">' + esc(t('progress.resetDo')) + '</button></section>';
     return G.page(inner, '#/progress');
   });
   G.acts.delSentence = el => { G.state.sentences.splice(+el.getAttribute('data-i'), 1); G.save(); G.render(); };
-  G.acts.resetProgress = () => { if (window.confirm(t('progress.resetText'))) { G.state.progress = {}; G.state.sentences = []; G.state.met = {}; G.state.streak = { last: null, count: 0 }; G.save(); G.render(); } };
+  G.acts.resetAsk = () => {
+    const box = G.$('#resetBox'); if (!box) return;
+    box.innerHTML = '<h3>' + esc(t('progress.resetTitle')) + '</h3><p class="sub" style="margin:6px 0 14px">' + esc(t('progress.resetText')) + '</p><div class="row wrap"><button class="btn primary" data-act="resetYes">' + esc(t('progress.resetSure')) + '</button><button class="btn ghost" data-act="resetNo">' + esc(t('common.cancel')) + '</button></div>';
+  };
+  G.acts.resetNo = () => G.render();
+  G.acts.resetYes = () => { G.state.progress = {}; G.state.sentences = []; G.state.met = {}; G.state.streak = { last: null, count: 0 }; G.save(); G.render(); G.toast(t('progress.resetDone')); };
 })(window.G = window.G || {});

@@ -9,6 +9,7 @@ const { chromium } = require('playwright');
 
 const ROOT = path.resolve(__dirname, '..');
 const B = JSON.parse(fs.readFileSync(path.join(ROOT, 'content/batches/b001.json'), 'utf8'));
+const MEDIA = JSON.parse(fs.readFileSync(path.join(ROOT, 'content/media.json'), 'utf8'));
 const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json' };
 const ASSEMBLE = tiles => { let s = tiles.join(' ').trim().replace(/\s+([,.!?])/g, '$1'); if (s && s[0] === s[0].toLowerCase()) s = s[0].toUpperCase() + s.slice(1); if (s && !/[.!?]$/.test(s)) s += '.'; return s; };
 
@@ -259,9 +260,16 @@ const hintText = page => page.$eval('.bighint', e => Array.from(e.childNodes).fi
   console.log('Watch and listen');
   const hubLevel = async lv => { await page.locator('[data-act=setLevel][data-v=' + lv + ']').first().click(); await page.waitForSelector('.shell[data-level=' + lv + ']'); await page.waitForSelector('.mtile'); };
   const mediaTexts = () => page.$$eval('.mtile', els => els.map(e => ({ title: e.querySelector('b').textContent.trim(), sub: e.querySelector('small').textContent.trim(), tag: e.tagName, href: e.getAttribute('href'), target: e.getAttribute('target'), rel: e.getAttribute('rel'), off: e.classList.contains('off'), soon: !!e.querySelector('.pill') })));
+  await test('the links written in content/media.json appear on the buttons at every level, and an empty one stays Coming soon', async () => {
+    for (const lv of ['beginner', 'intermediate', 'advanced']) {
+      await setLevel(lv); await go('#/batch/b001', '.mtile'); await page.reload(); await page.waitForSelector('.mtile');
+      const m = await mediaTexts(), want = MEDIA.b001[lv];
+      [['video', 0], ['talk', 1]].forEach(([k, i]) => { if (/^https:\/\//.test(want[k])) { assert.strictEqual(m[i].href, want[k].trim(), lv + ' ' + k); assert.strictEqual(m[i].target, '_blank'); } else assert(m[i].off && m[i].soon, lv + ' ' + k + ' has no link yet'); });
+    }
+  });
   await test('each level shows Watch the video and Listen to an in-depth conversation, each with its subtitle, and Coming soon until a link is added', async () => {
     for (const lv of ['beginner', 'intermediate', 'advanced']) {
-      await setLevel(lv); await go('#/batch/b001', '.mtile');
+      await setLevel(lv); await go('#/batch/b001', '.mtile'); await page.evaluate(() => { G.media = {}; G.render(); }); await page.waitForSelector('.mtile.off');
       const m = await mediaTexts(); assert.strictEqual(m.length, 2);
       assert.deepStrictEqual(m.map(x => [x.title, x.sub]), [['Watch the video', 'Watch now: English video'], ['Listen to an in-depth conversation', 'Listen now: Chinese conversation about the words']]);
       assert(m.every(x => x.off && x.soon && x.tag === 'BUTTON'), lv + ': no link yet');

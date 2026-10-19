@@ -16,11 +16,12 @@ At each level (Beginner, Intermediate, Advanced) a button to watch the video (En
 | Check | Result |
 |---|---|
 | Checker and its tests | 0 errors; 35 of 35 tests |
-| Browser test, app folder and single-file demo | 39 of 39 on both; new checks cover the two buttons and subtitles at every level, links per level opening in a new tab, an `http://` and a `javascript:` link being ignored, the Chinese text, and a 390 px phone |
+| Browser test, app folder and single-file demo | 40 of 40 on both; new checks cover the two buttons and subtitles at every level, links per level opening in a new tab, an `http://` and a `javascript:` link being ignored, the Chinese text, and a 390 px phone |
 
 ## Not verified
-- No real link has been opened, because no link exists yet. The test uses made-up addresses.
-- The two buttons open the link in a new tab. They do not play the video inside the app, so the owner's Cloudflare page decides how it plays.
+- Links added so far: Lesson 1 Beginner video and Beginner conversation, both Google Drive files supplied by the owner. The other four are empty and show Coming soon. Drive could not be reached from this build environment, so neither file was opened here. The owner needs to open both in a private browser window to confirm they are set to Anyone with the link.
+- The browser test checks the app against whatever is written in `content/media.json`, and uses made-up addresses for the rest.
+- The two buttons open the link in a new tab. They do not play the video inside the app, so the host (Google Drive, or Cloudflare later) decides how it plays.
 - The Chinese wording of the buttons was written by me and has not had a Chinese reviewer.
 - Real touch devices, Safari and Firefox are untested.
 

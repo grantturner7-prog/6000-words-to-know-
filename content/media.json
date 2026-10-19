@@ -1,7 +1,7 @@
 {
-  "_how": "Paste each Cloudflare link between the quotation marks. 'video' is the English video and 'talk' is the Chinese conversation about the words. A link must start with https://. An empty one shows the button as 'Coming soon'. Then run: python3 scripts/check_batch.py --all, and python3 scripts/build_demo.py",
+  "_how": "Paste each link between the quotation marks. 'video' is the English video and 'talk' is the Chinese conversation about the words. A link must start with https:// (a Google Drive link set to Anyone with the link works). An empty one shows the button as Coming soon. Then run: python3 scripts/check_batch.py --all, and python3 scripts/build_demo.py",
   "b001": {
-    "beginner":     { "video": "", "talk": "" },
+    "beginner":     { "video": "https://drive.google.com/file/d/16UG1MqLMrfEIGO9RMgpxEzgc0MxDHDZC/view?usp=drive_link", "talk": "https://drive.google.com/file/d/1B-VDFVnrmKuHLylHk_eNp3JWeI9PtsOO/view?usp=drive_link" },
     "intermediate": { "video": "", "talk": "" },
     "advanced":     { "video": "", "talk": "" }
   }

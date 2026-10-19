@@ -1,6 +1,6 @@
 # Content standards for a batch
 
-Every batch passes these gates before it is published. Gates 1 to 8 are automatic: `python3 scripts/check_batch.py content/batches/b001.json` (or `--all`). The checker itself is tested by `python3 scripts/test_check_batch.py`, which breaks a copy of Batch 1 in 25 ways and confirms each one is caught. Gates 9 to 11 need people.
+Every batch passes these gates before it is published. Gates 1 to 8 are automatic: `python3 scripts/check_batch.py content/batches/b001.json` (or `--all`). The checker itself is tested by `python3 scripts/test_check_batch.py`, which breaks a copy of Batch 1 in 29 ways and confirms each one is caught. Gates 9 to 11 need people.
 
 Standing rules from the owner apply to all text: refer to learners as "students"; positive wording (the app says "Almost! Try another one", never "Wrong"); no remark about any group of people; no real student names; original sentences only.
 
@@ -20,6 +20,14 @@ Standing rules from the owner apply to all text: refer to learners as "students"
 | `confusable` | At least two look-alike spellings for the Spelling Bee, none of them correct. |
 
 Per level, two stories of 10 gaps each. Every word is a gap exactly once at each level.
+
+## Chinese translations
+`content/translations/bNNN.json` holds the Chinese for the batch: every example sentence, two sample sentences for every Sentence Maker pattern (built from the first tile and the last tile of every row), and every story part. The PDFs for the owner's videos are made from it, so the Chinese in the videos matches the app. The checker enforces this:
+- every example, sample and story part has Chinese;
+- every example and sample uses the word's own Chinese meaning from `zhTW` (a brief list of extra accepted words can be added per word in `extraGloss`, and the PDF shows them);
+- every story's Chinese uses the meaning of each word that is a gap in it;
+- each sample's English still equals what the pattern builds, so a change to a pattern makes the sample fail until it is retranslated.
+A teacher reads the Chinese as part of gate 11. Names and family words are fixed in `terms` so they stay the same everywhere.
 
 ## The three levels
 | | Beginner | Intermediate | Advanced |

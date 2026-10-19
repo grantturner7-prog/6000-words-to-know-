@@ -20,6 +20,8 @@ The word list is the College Entrance Examination Center (CEEC) Senior High Engl
 | `content/wordlist.json` | The same list as data, 6,009 entries |
 | `content/batches.json` | Which words go in which batch and set (298 batches) |
 | `content/batches/b001.json`, `b002.json` | Batches 1 and 2 in full |
+| `content/translations/b001.json` | The Chinese for Batch 1's sentences, sample sentences and stories |
+| `docs/pdf/` | One PDF per level for each batch with Chinese: the words, patterns, samples and story, for making the videos |
 | `app/` | The front end: plain HTML, CSS and JavaScript, no build step |
 | `docs/recording/` | One reading sheet per written batch, for recording the video and voice |
 | `audio/` | Where recorded or neural-voice clips go, and how to list them; empty until the owner chooses a voice |
@@ -37,6 +39,7 @@ DEMO=1 NODE_PATH=$(npm root -g) node scripts/e2e.cjs     # the same test against
 python3 scripts/build_demo.py              # rebuild demo/Genesis-6000-Words.html
 python3 scripts/audio_manifest.py          # how many audio clips the written batches need
 python3 scripts/make_recording_sheet.py --all   # reading sheets in docs/recording/
+python3 scripts/make_level_pdfs.py --all        # one PDF per level in docs/pdf/ (needs node and playwright)
 python3 scripts/make_review_packs.py ...   # packs for independent review (see CONTENT-STANDARDS.md)
 ```
 

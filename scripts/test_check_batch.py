@@ -13,15 +13,19 @@ spec = importlib.util.spec_from_file_location("check_batch", ROOT / "scripts" / 
 cb = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(cb)
 BASE = json.loads((ROOT / "content" / "batches" / "b001.json").read_text(encoding="utf-8"))
+TBASE = json.loads((ROOT / "content" / "translations" / "b001.json").read_text(encoding="utf-8"))
 
 
-def run(mutate):
+def run(mutate, tmutate=None):
     data = copy.deepcopy(BASE)
     mutate(data)
+    trans = copy.deepcopy(TBASE)
+    if tmutate:
+        tmutate(trans)
     with tempfile.TemporaryDirectory() as d:
         p = Path(d) / "b001.json"
         p.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
-        rep, _ = cb.check_batch(p)
+        rep, _ = cb.check_batch(p, translations=trans)
     return rep.errors
 
 
@@ -121,6 +125,22 @@ class CheckBatch(unittest.TestCase):
     def test_story_title_shows_a_gap_word(self):
         def m(d): d["stories"]["beginner"]["parts"][0]["title"] = "The Chair by the Fire"
         self.assertCaught(run(m), "title shows a word")
+
+    def test_example_chinese_must_use_the_words_meaning(self):
+        def t(tr): tr["examples"][word(BASE, "tea")["id"]]["beginner"] = "我每天早上都喝咖啡。"
+        self.assertCaught(run(lambda d: None, t), "does not use the word's meaning")
+
+    def test_sample_sentence_goes_out_of_date_when_the_pattern_changes(self):
+        def m(d): word(d, "tea")["frames"]["beginner"]["rows"][0]["tiles"][0] = "We"
+        self.assertCaught(run(m), "sample is out of date")
+
+    def test_story_chinese_must_cover_every_word(self):
+        def t(tr): tr["stories"]["beginner"][0] = "山姆坐在家裡。"
+        self.assertCaught(run(lambda d: None, t), "never uses the meaning of")
+
+    def test_missing_chinese_story_part(self):
+        def t(tr): tr["stories"]["advanced"].pop()
+        self.assertCaught(run(lambda d: None, t), "Chinese parts for")
 
     def test_banned_word(self):
         def m(d): word(d, "chair")["examples"]["advanced"] = "When the bell rang, the stupid {chair} fell over and Tom ran to the door."

@@ -11,12 +11,12 @@ Say the word, then the Chinese, then the English meaning.
 | 1 | **boring** | adjective | 無聊的 | Not fun or interesting. |
 | 2 | **chair** | noun | 椅子 | A seat for one person, with a back. |
 | 3 | **go** | verb | 去 | To move from one place to another. |
-| 4 | **pleasure** | noun | 樂趣；愉快 | A happy feeling. |
+| 4 | **pleasure** | noun | 樂趣；愉快的事 | A happy feeling. |
 | 5 | **sore** | adjective | 痠痛的 | Hurting after you use your body a lot. |
 | 6 | **back** | adverb | 回來；回去 | To the place you came from. |
 | 7 | **crazy** | adjective | 瘋狂的 | Very silly or wild. |
 | 8 | **earth** | noun | 地球 | The planet we live on. |
-| 9 | **hold** | verb | 拿著；抱著；握住 | To keep something in your hands. |
+| 9 | **hold** | verb | 拿著；抱著；握住；扶著 | To keep something in your hands. |
 | 10 | **tea** | noun | 茶 | A drink made from leaves and water. |
 | 11 | **kid** | noun | 小孩 | A child. |
 | 12 | **look** | verb | 看 | To turn your eyes to something. |

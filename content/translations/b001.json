@@ -1,0 +1,778 @@
+{
+ "batch": "b001",
+ "note": "Chinese for every example sentence, two sample sentences per Sentence Maker pattern (the first and the last tile of every row), and every story. Written for Taiwan; a teacher should read it.",
+ "terms": {
+  "Sam": "山姆",
+  "Amy": "艾咪",
+  "Tom": "湯姆",
+  "Lily": "莉莉",
+  "Lucy": "露西",
+  "my brother": "哥哥 (弟弟 where the text has already said little brother)",
+  "my little brother": "弟弟",
+  "my sister": "姊姊",
+  "uncle": "叔叔",
+  "aunt": "阿姨",
+  "cousin": "表兄弟姊妹 (Lucy = 表妹)",
+  "grandmother": "奶奶",
+  "grandfather": "爺爺"
+ },
+ "extraGloss": {},
+ "examples": {
+  "w0589": {
+   "beginner": "這部電影很無聊。",
+   "intermediate": "這趟旅程又長又無聊。",
+   "advanced": "雖然這本書看起來很無聊，結果卻非常好笑。"
+  },
+  "w0820": {
+   "beginner": "坐在椅子上。",
+   "intermediate": "請為我們的客人搬一張椅子來。",
+   "advanced": "鈴聲一響，湯姆就從他的椅子上跳下來，跑向門口。"
+  },
+  "w2358": {
+   "beginner": "我搭公車去學校。",
+   "intermediate": "我們星期六要去湖邊。",
+   "advanced": "如果雨停了，我們可以在晚餐前去散步。"
+  },
+  "w3988": {
+   "beginner": "音樂帶給我樂趣。",
+   "intermediate": "閱讀帶給我很大的樂趣。",
+   "advanced": "他很享受為朋友和家人做菜的樂趣。"
+  },
+  "w4993": {
+   "beginner": "我的腿很痠痛。",
+   "intermediate": "那場打了很久的比賽結束後，我的腳很痠痛。",
+   "advanced": "走了那麼長的路，我的腿很痠痛，所以我想坐下來。"
+  },
+  "w0394": {
+   "beginner": "請快點回來。",
+   "intermediate": "我五點會回來。",
+   "advanced": "旅行結束後，我們回家去，睡了十個小時。"
+  },
+  "w1284": {
+   "beginner": "那隻狗好瘋狂！",
+   "intermediate": "那是個瘋狂的點子，但是行得通。",
+   "advanced": "大家都覺得這個計畫很瘋狂，不過結果卻大獲成功。"
+  },
+  "w1745": {
+   "beginner": "地球繞著太陽轉。",
+   "intermediate": "從太空看，地球看起來是藍色和白色的。",
+   "advanced": "科學家說地球正在變暖，所以我們必須愛護它。"
+  },
+  "w2573": {
+   "beginner": "請幫我拿著包包。",
+   "intermediate": "她把寶寶抱在懷裡。",
+   "advanced": "他會扶著門，讓提著重袋子的人通過。"
+  },
+  "w5361": {
+   "beginner": "我每天早上都喝茶。",
+   "intermediate": "我奶奶為我們大家泡了熱茶。",
+   "advanced": "在寒冷中走了很久的路以後，沒有什麼比熱茶更好喝了。"
+  },
+  "w2949": {
+   "beginner": "這個小孩有一顆紅球。",
+   "intermediate": "隔壁的小孩每天彈鋼琴。",
+   "advanced": "我還是小孩的時候，我們家住在海邊。"
+  },
+  "w3155": {
+   "beginner": "看那隻鳥！",
+   "intermediate": "她看了一下時鐘，就跑出去了。",
+   "advanced": "如果你仔細看，就能看到樹上有一隻小鳥。"
+  },
+  "w3661": {
+   "beginner": "我有一堂線上課。",
+   "intermediate": "很多人從線上商店買東西。",
+   "advanced": "我們學校成立了一個線上社團，讓學生們在下課後可以聊天。"
+  },
+  "w5531": {
+   "beginner": "你可以摸摸這隻溫暖的貓。",
+   "intermediate": "你碰杯子的時候要小心，因為它很燙。",
+   "advanced": "每當我摸那架老鋼琴，就會想起我奶奶的歌。"
+  },
+  "w5877": {
+   "beginner": "她唱得非常好。",
+   "intermediate": "你這次考試考得很好。",
+   "advanced": "他的英文說得好到讓很多人覺得他住過國外。"
+  },
+  "w0005": {
+   "beginner": "鳥類有飛行的能力。",
+   "intermediate": "她有很快學會新單字的能力。",
+   "advanced": "雖然他年紀還小，卻在數學和音樂上展現出很強的能力。"
+  },
+  "w2100": {
+   "beginner": "這兩隻貓在打架。",
+   "intermediate": "那兩隻狗為了一顆球開始打架。",
+   "advanced": "雖然我和姊姊有時候會吵架，但我們總是互相幫忙。"
+  },
+  "w3441": {
+   "beginner": "我媽媽煮晚餐。",
+   "intermediate": "我媽媽每天早上走路去上班。",
+   "advanced": "我的母親在醫院工作，每個星期五都很晚才回家。"
+  },
+  "w4417": {
+   "beginner": "今天有一位親戚來拜訪我們。",
+   "intermediate": "我有一位親戚住在日本。",
+   "advanced": "因為我在加拿大有一位親戚，所以我想有一天能去那裡。"
+  },
+  "w4761": {
+   "beginner": "請把餐桌擺好。",
+   "intermediate": "我們吃飯前，我爸爸會把餐桌擺好。",
+   "advanced": "客人到了以後，我阿姨把幾杯熱茶擺放在桌上。"
+  }
+ },
+ "samples": {
+  "w0589": {
+   "beginner": [
+    {
+     "en": "The movie is boring today.",
+     "zh": "這部電影今天很無聊。"
+    },
+    {
+     "en": "This game is very boring in the afternoon.",
+     "zh": "這個遊戲在下午非常無聊。"
+    }
+   ],
+   "intermediate": [
+    {
+     "en": "Yesterday, the movie was boring.",
+     "zh": "昨天，那部電影很無聊。"
+    },
+    {
+     "en": "On Monday, the trip was really boring.",
+     "zh": "星期一那天，那趟旅行真的很無聊。"
+    }
+   ],
+   "advanced": [
+    {
+     "en": "Tom thought the story was boring because it was too long.",
+     "zh": "湯姆覺得這個故事很無聊，因為它太長了。"
+    },
+    {
+     "en": "Our friend found the lesson boring because it was too slow.",
+     "zh": "我們的朋友覺得這堂課很無聊，因為進度太慢了。"
+    }
+   ]
+  },
+  "w0820": {
+   "beginner": [
+    {
+     "en": "I can sit on a chair at home.",
+     "zh": "我在家可以坐在椅子上。"
+    },
+    {
+     "en": "Amy will sit on the chair after lunch.",
+     "zh": "艾咪午餐後會坐在那張椅子上。"
+    }
+   ],
+   "intermediate": [
+    {
+     "en": "Yesterday, I sat on a chair.",
+     "zh": "昨天，我坐在一張椅子上。"
+    },
+    {
+     "en": "Last night, the teacher bought a new chair.",
+     "zh": "昨天晚上，老師買了一張新椅子。"
+    }
+   ],
+   "advanced": [
+    {
+     "en": "When the lesson began, Tom sat down on a chair.",
+     "zh": "開始上課時，湯姆在一張椅子上坐了下來。"
+    },
+    {
+     "en": "Before dinner, the little girl pulled the chair closer to the table.",
+     "zh": "晚餐前，小女孩把椅子拉得更靠近桌子。"
+    }
+   ]
+  },
+  "w2358": {
+   "beginner": [
+    {
+     "en": "I go to school every day.",
+     "zh": "我每天去學校。"
+    },
+    {
+     "en": "They go to the park after lunch.",
+     "zh": "他們午餐後去公園。"
+    }
+   ],
+   "intermediate": [
+    {
+     "en": "I will go to the beach tomorrow.",
+     "zh": "我明天要去海邊。"
+    },
+    {
+     "en": "They would like to go to the lake next week.",
+     "zh": "他們下週想去湖邊。"
+    }
+   ],
+   "advanced": [
+    {
+     "en": "Tom went home early because it started to rain.",
+     "zh": "因為開始下雨了，湯姆提早回家去了。"
+    },
+    {
+     "en": "The teacher wanted to go home early because the party was too loud.",
+     "zh": "老師因為派對太吵了，想要提早回家去。"
+    }
+   ]
+  },
+  "w3988": {
+   "beginner": [
+    {
+     "en": "Music gives me pleasure at home.",
+     "zh": "音樂在家裡帶給我樂趣。"
+    },
+    {
+     "en": "Running gives me great pleasure in the morning.",
+     "zh": "早上跑步帶給我很大的樂趣。"
+    }
+   ],
+   "intermediate": [
+    {
+     "en": "Music gave me great pleasure as a child.",
+     "zh": "小時候，音樂帶給我很大的樂趣。"
+    },
+    {
+     "en": "Reading gave me pleasure on rainy days.",
+     "zh": "下雨天的時候，閱讀帶給我樂趣。"
+    }
+   ],
+   "advanced": [
+    {
+     "en": "My grandmother takes great pleasure in telling stories.",
+     "zh": "我奶奶從講故事中得到很大的樂趣。"
+    },
+    {
+     "en": "Our neighbor finds real pleasure in helping young people.",
+     "zh": "我們的鄰居從幫助年輕人中得到真正的樂趣。"
+    }
+   ]
+  },
+  "w4993": {
+   "beginner": [
+    {
+     "en": "My legs are sore today.",
+     "zh": "我的腿今天很痠痛。"
+    },
+    {
+     "en": "My feet are very sore after the game.",
+     "zh": "比賽後，我的腳非常痠痛。"
+    }
+   ],
+   "intermediate": [
+    {
+     "en": "Yesterday, my legs were sore.",
+     "zh": "昨天，我的腿很痠痛。"
+    },
+    {
+     "en": "This morning, my feet felt sore.",
+     "zh": "今天早上，我的腳感覺很痠痛。"
+    }
+   ],
+   "advanced": [
+    {
+     "en": "Tom's legs were sore because we played all day.",
+     "zh": "湯姆的腿很痠痛，因為我們玩了一整天。"
+    },
+    {
+     "en": "Her feet felt sore when we finished the long walk.",
+     "zh": "我們走完那段很長的路時，她的腳感覺很痠痛。"
+    }
+   ]
+  },
+  "w0394": {
+   "beginner": [
+    {
+     "en": "I will come back soon.",
+     "zh": "我很快就會回來。"
+    },
+    {
+     "en": "They can come back after lunch.",
+     "zh": "他們午餐後可以回來。"
+    }
+   ],
+   "intermediate": [
+    {
+     "en": "I came back late last night.",
+     "zh": "我昨天晚上很晚才回來。"
+    },
+    {
+     "en": "They got back after the game.",
+     "zh": "他們在比賽後回來了。"
+    }
+   ],
+   "advanced": [
+    {
+     "en": "After the rain stopped, the children ran back to the house.",
+     "zh": "雨停了以後，孩子們跑回屋子裡去。"
+    },
+    {
+     "en": "Once dinner was ready, my cousins came back to the table.",
+     "zh": "晚餐一準備好，我的表兄弟姊妹就回到餐桌旁來了。"
+    }
+   ]
+  },
+  "w1284": {
+   "beginner": [
+    {
+     "en": "That dog is crazy and fun.",
+     "zh": "那隻狗很瘋狂，又很好玩。"
+    },
+    {
+     "en": "My brother is so crazy but cool.",
+     "zh": "我哥哥好瘋狂，可是很酷。"
+    }
+   ],
+   "intermediate": [
+    {
+     "en": "Yesterday, the game was crazy.",
+     "zh": "昨天，那場比賽很瘋狂。"
+    },
+    {
+     "en": "On the trip, the weather seemed crazy.",
+     "zh": "旅行的時候，天氣看起來很瘋狂。"
+    }
+   ],
+   "advanced": [
+    {
+     "en": "The teacher said the plan was crazy when we first heard it.",
+     "zh": "我們剛聽到這個計畫時，老師說它很瘋狂。"
+    },
+    {
+     "en": "The old woman thought the idea was crazy before we tried it.",
+     "zh": "在我們試過之前，那位老婆婆覺得這個點子很瘋狂。"
+    }
+   ]
+  },
+  "w1745": {
+   "beginner": [
+    {
+     "en": "The Earth is round.",
+     "zh": "地球是圓的。"
+    },
+    {
+     "en": "Our Earth is very important.",
+     "zh": "我們的地球非常重要。"
+    }
+   ],
+   "intermediate": [
+    {
+     "en": "From space, the Earth looks small and blue.",
+     "zh": "從太空看，地球看起來又小又藍。"
+    },
+    {
+     "en": "In the picture, the Earth seems like a big ball.",
+     "zh": "在這張圖片裡，地球看起來像一顆大球。"
+    }
+   ],
+   "advanced": [
+    {
+     "en": "Many people want to protect the Earth because it is our only home.",
+     "zh": "很多人想要保護地球，因為它是我們唯一的家。"
+    },
+    {
+     "en": "My classmates work hard to save the Earth so everyone can live well.",
+     "zh": "我的同學們努力拯救地球，好讓大家都能過得好。"
+    }
+   ]
+  },
+  "w2573": {
+   "beginner": [
+    {
+     "en": "I can hold your bag.",
+     "zh": "我可以幫你拿著包包。"
+    },
+    {
+     "en": "They will hold the door.",
+     "zh": "他們會扶著門。"
+    }
+   ],
+   "intermediate": [
+    {
+     "en": "Yesterday, I held a cat.",
+     "zh": "昨天，我抱了一隻貓。"
+    },
+    {
+     "en": "This morning, the teacher held the door open.",
+     "zh": "今天早上，老師扶著門，不讓門關上。"
+    }
+   ],
+   "advanced": [
+    {
+     "en": "My grandfather holds the baby while we wait.",
+     "zh": "我們等待的時候，我爺爺抱著寶寶。"
+    },
+    {
+     "en": "Our aunt holds the bag while the others rest.",
+     "zh": "其他人休息的時候，我們的阿姨拿著袋子。"
+    }
+   ]
+  },
+  "w5361": {
+   "beginner": [
+    {
+     "en": "I drink tea every day.",
+     "zh": "我每天喝茶。"
+    },
+    {
+     "en": "They like tea after school.",
+     "zh": "他們放學後喜歡喝茶。"
+    }
+   ],
+   "intermediate": [
+    {
+     "en": "Yesterday, my father made hot tea.",
+     "zh": "昨天，我爸爸泡了熱茶。"
+    },
+    {
+     "en": "On Sunday, our teacher drank cold tea.",
+     "zh": "星期天，我們的老師喝了冷茶。"
+    }
+   ],
+   "advanced": [
+    {
+     "en": "My grandfather always drinks green tea when he reads the newspaper.",
+     "zh": "我爺爺看報紙的時候，總是喝綠茶。"
+    },
+    {
+     "en": "Our neighbor likes to drink tea after he finishes lunch.",
+     "zh": "我們的鄰居吃完午餐後喜歡喝茶。"
+    }
+   ]
+  },
+  "w2949": {
+   "beginner": [
+    {
+     "en": "The kid can run in the park.",
+     "zh": "這個小孩可以在公園裡跑步。"
+    },
+    {
+     "en": "That kid can sing at home.",
+     "zh": "那個小孩在家可以唱歌。"
+    }
+   ],
+   "intermediate": [
+    {
+     "en": "Yesterday, a kid lost a shoe.",
+     "zh": "昨天，有個小孩掉了一隻鞋子。"
+    },
+    {
+     "en": "This morning, the little kid ran into the room.",
+     "zh": "今天早上，那個小小孩跑進了房間。"
+    }
+   ],
+   "advanced": [
+    {
+     "en": "The new kid learned to ride a bike because it looked fun.",
+     "zh": "那個新來的小孩學騎腳踏車，因為看起來很好玩。"
+    },
+    {
+     "en": "The little kid next door wanted to join the club after the holiday ended.",
+     "zh": "假期結束後，隔壁的小小孩想要加入社團。"
+    }
+   ]
+  },
+  "w3155": {
+   "beginner": [
+    {
+     "en": "I look at the sky every day.",
+     "zh": "我每天看天空。"
+    },
+    {
+     "en": "They look at the map in class.",
+     "zh": "他們在課堂上看地圖。"
+    }
+   ],
+   "intermediate": [
+    {
+     "en": "Yesterday, I looked at the stars.",
+     "zh": "昨天，我看了星星。"
+    },
+    {
+     "en": "Last weekend, my brother looked at old pictures.",
+     "zh": "上個週末，我哥哥看了一些舊照片。"
+    }
+   ],
+   "advanced": [
+    {
+     "en": "If you look at the sky tonight, you can see something new.",
+     "zh": "如果你今晚看看天空，就能看到新的東西。"
+    },
+    {
+     "en": "When you look at the old photo, you may notice more than you expect.",
+     "zh": "你看著那張舊照片的時候，可能會注意到比你預期還要多的東西。"
+    }
+   ]
+  },
+  "w3661": {
+   "beginner": [
+    {
+     "en": "I have an online class today.",
+     "zh": "我今天有一堂線上課。"
+    },
+    {
+     "en": "They have an online game after school.",
+     "zh": "他們放學後有一場線上遊戲。"
+    }
+   ],
+   "intermediate": [
+    {
+     "en": "Yesterday, I joined an online class.",
+     "zh": "昨天，我參加了一堂線上課。"
+    },
+    {
+     "en": "This morning, my friends played an online game.",
+     "zh": "今天早上，我的朋友們玩了線上遊戲。"
+    }
+   ],
+   "advanced": [
+    {
+     "en": "My sister joined an online club because it was easy to join from home.",
+     "zh": "我姊姊加入了一個線上社團，因為在家就很容易加入。"
+    },
+    {
+     "en": "The new student took an online class because the school was far away.",
+     "zh": "那位新同學上了一堂線上課，因為學校很遠。"
+    }
+   ]
+  },
+  "w5531": {
+   "beginner": [
+    {
+     "en": "I can touch the warm cat.",
+     "zh": "我可以摸摸這隻溫暖的貓。"
+    },
+    {
+     "en": "They will touch the old tree.",
+     "zh": "他們會摸一摸那棵老樹。"
+    }
+   ],
+   "intermediate": [
+    {
+     "en": "Yesterday, I touched a rabbit.",
+     "zh": "昨天，我摸了一隻兔子。"
+    },
+    {
+     "en": "At the zoo, the little girl touched the water.",
+     "zh": "在動物園，小女孩摸了摸水。"
+    }
+   ],
+   "advanced": [
+    {
+     "en": "The teacher let me touch the old clock.",
+     "zh": "老師讓我摸那個老時鐘。"
+    },
+    {
+     "en": "My aunt asked us to touch the soft cloth.",
+     "zh": "我阿姨叫我們摸摸那塊柔軟的布。"
+    }
+   ]
+  },
+  "w5877": {
+   "beginner": [
+    {
+     "en": "She sings well at school.",
+     "zh": "她在學校唱得很好。"
+    },
+    {
+     "en": "My friend reads well every day.",
+     "zh": "我的朋友每天都讀得很好。"
+    }
+   ],
+   "intermediate": [
+    {
+     "en": "Yesterday, I did well.",
+     "zh": "昨天，我做得很好。"
+    },
+    {
+     "en": "At the game, my brother played well.",
+     "zh": "在比賽中，我哥哥打得很好。"
+    }
+   ],
+   "advanced": [
+    {
+     "en": "My brother did so well that everyone clapped.",
+     "zh": "我哥哥表現得太好，大家都鼓掌了。"
+    },
+    {
+     "en": "Our team played so well that the crowd cheered.",
+     "zh": "我們這一隊打得太好了，觀眾都歡呼起來。"
+    }
+   ]
+  },
+  "w0005": {
+   "beginner": [
+    {
+     "en": "She has the ability to sing.",
+     "zh": "她有唱歌的能力。"
+    },
+    {
+     "en": "My friend has a great ability to jump.",
+     "zh": "我的朋友有很棒的跳躍能力。"
+    }
+   ],
+   "intermediate": [
+    {
+     "en": "Yesterday, her ability surprised everyone.",
+     "zh": "昨天，她的能力讓大家都很驚訝。"
+    },
+    {
+     "en": "In class, Tom's ability made us happy.",
+     "zh": "在課堂上，湯姆的能力讓我們很開心。"
+    }
+   ],
+   "advanced": [
+    {
+     "en": "My teacher has the ability to make everyone laugh.",
+     "zh": "我的老師有讓大家笑出來的能力。"
+    },
+    {
+     "en": "My grandmother has a great ability to stay calm on a hard day.",
+     "zh": "我奶奶有很棒的能力，即使在辛苦的一天也能保持冷靜。"
+    }
+   ]
+  },
+  "w2100": {
+   "beginner": [
+    {
+     "en": "The cats fight in the yard.",
+     "zh": "貓咪們在院子裡打架。"
+    },
+    {
+     "en": "The two birds sometimes fight near the house.",
+     "zh": "這兩隻鳥有時候會在房子附近打架。"
+    }
+   ],
+   "intermediate": [
+    {
+     "en": "Yesterday, the dogs began to fight in the yard.",
+     "zh": "昨天，那些狗在院子裡開始打架。"
+    },
+    {
+     "en": "After school, the two birds started to fight on the road.",
+     "zh": "放學後，那兩隻鳥開始在路上打架。"
+    }
+   ],
+   "advanced": [
+    {
+     "en": "The brothers used to fight in the yard.",
+     "zh": "那對兄弟以前常在院子裡打架。"
+    },
+    {
+     "en": "The two friends started to fight because the room was too small.",
+     "zh": "那兩個朋友因為房間太小而開始吵架。"
+    }
+   ]
+  },
+  "w3441": {
+   "beginner": [
+    {
+     "en": "My mother cooks dinner every day.",
+     "zh": "我媽媽每天煮晚餐。"
+    },
+    {
+     "en": "Her mother drives a car at night.",
+     "zh": "她的媽媽晚上開車。"
+    }
+   ],
+   "intermediate": [
+    {
+     "en": "Yesterday, my mother made a big cake.",
+     "zh": "昨天，我媽媽做了一個大蛋糕。"
+    },
+    {
+     "en": "This morning, her mother drove us to school.",
+     "zh": "今天早上，她的媽媽開車載我們去學校。"
+    }
+   ],
+   "advanced": [
+    {
+     "en": "My mother always tells us to eat slowly.",
+     "zh": "我媽媽總是叫我們慢慢吃。"
+    },
+    {
+     "en": "Tom's mother sometimes reminds us to be kind to others.",
+     "zh": "湯姆的媽媽有時候會提醒我們要善待別人。"
+    }
+   ]
+  },
+  "w4417": {
+   "beginner": [
+    {
+     "en": "A relative visits us today.",
+     "zh": "今天有一位親戚來拜訪我們。"
+    },
+    {
+     "en": "Our relative helps us every week.",
+     "zh": "我們家的一位親戚每個星期都幫助我們。"
+    }
+   ],
+   "intermediate": [
+    {
+     "en": "Yesterday, a relative visited us.",
+     "zh": "昨天，有一位親戚來拜訪我們。"
+    },
+    {
+     "en": "On Sunday, our relative gave us a gift.",
+     "zh": "星期天，我們的親戚送了我們一份禮物。"
+    }
+   ],
+   "advanced": [
+    {
+     "en": "I can call a relative when the holiday starts.",
+     "zh": "假期開始的時候，我可以打電話給一位親戚。"
+    },
+    {
+     "en": "They should visit a relative before the party.",
+     "zh": "他們應該在派對之前去拜訪一位親戚。"
+    }
+   ]
+  },
+  "w4761": {
+   "beginner": [
+    {
+     "en": "I set the table every day.",
+     "zh": "我每天都把餐桌擺好。"
+    },
+    {
+     "en": "They set the plates after school.",
+     "zh": "他們放學後把盤子擺好。"
+    }
+   ],
+   "intermediate": [
+    {
+     "en": "Yesterday, I set the table.",
+     "zh": "昨天，我把餐桌擺好了。"
+    },
+    {
+     "en": "This morning, my sister set out the cups.",
+     "zh": "今天早上，我姊姊把杯子擺放好。"
+    }
+   ],
+   "advanced": [
+    {
+     "en": "My aunt set the table carefully before the guests arrived.",
+     "zh": "客人到達之前，我阿姨很仔細地把餐桌擺好。"
+    },
+    {
+     "en": "My uncle set the plates in a line after the rain stopped.",
+     "zh": "雨停了以後，我叔叔把盤子排成一列擺好。"
+    }
+   ]
+  }
+ },
+ "stories": {
+  "beginner": [
+   "山姆坐在一張椅子上。比賽後，他的腿很痠痛。星期天好無聊。山姆想要去外面，可是外面在下雨。他的姊姊端來茶。山姆帶著微笑喝茶。茶帶給他樂趣。不久，雨停了。山姆跑了出去。他的姊姊說：「快點回來！」一隻狗跑過去。牠好瘋狂！山姆看見天空。他說：「地球很大。」他的姊姊走出來。山姆握住她的手。",
+   "山姆是個小孩，有一個大家庭。他的爸爸和媽媽煮晚餐。一位親戚來吃飯。他是山姆的叔叔。山姆幫忙擺好餐桌。這時，貓和狗打架了！艾咪是山姆的姊姊。她有能力讓牠們停下來。她可以看著那隻狗。「停！」她說。不久，牠們安靜下來了。然後她可以摸摸那隻貓。大家都吃得很好。晚餐後，山姆有一堂線上課。"
+  ],
+  "intermediate": [
+   "上星期六，艾咪坐在營地裡營火旁的一張椅子上。走了很長的路之後，她的腿很痠痛。營地很安靜，也有一點無聊。她的朋友莉莉說：「我們去湖邊吧。」她們先喝了熱茶來保暖。在湖邊，她們遇到一位老先生。他說：「露營帶給我很大的樂趣。」然後她們走回營地去。那天晚上，風瘋狂地吹著，風聲很大。艾咪看著星星，想著地球。她用雙手握住溫熱的杯子。",
+   "在學校的園遊會上，每個小孩都拿到一張免費的票。我媽媽、弟弟和我一起來了。她為我們做了午餐。一位從加拿大來的親戚也來看我們。他是我的叔叔。我弟弟幫忙擺好餐桌。兩個學生為了一個獎品開始打架。我們的老師有能力讓大家冷靜下來。她看著他們，他們就停下來了。然後我輕輕摸了一隻柔軟的兔子。我弟弟打鼓打得很好。那天晚上，我們在一個線上網頁看到了那些照片。"
+  ],
+  "advanced": [
+   "雨開始下的時候，我爺爺在窗邊坐進他那張舊椅子裡。他整個早上在花園裡忙，所以膝蓋很痠痛。他說，除非有人講故事，不然下雨的下午很無聊。我說：「我們去市場找故事吧。」他先泡了熱茶，我們在廚房裡慢慢地喝。他說：「能和你相處，真是件愉快的事。」在市場裡，有位女士想到一個瘋狂的點子：她送免費的帽子給每個人。我爺爺告訴我，地球需要雨水，所以他從不抱怨下雨。後來我們穿過濕濕的街道，走回家去。路上，他握住我的手，因為路很滑。",
+   "我的表妹露西剛搬到隔壁的時候，是個害羞的小小孩。她的媽媽在銀行工作，所以露西放學後常常待在我們家。去年夏天，我們家的每一位親戚都來參加她的派對，連住在遠方的阿姨和叔叔們也來了。孩子們在院子裡玩的時候，我阿姨把餐桌擺好。有兩位表兄弟姊妹為了最後一塊蛋糕開始吵架，但我叔叔制止了他們。露西有讓人發笑的能力，即使他們正在生氣。她看著他們，做了一個鬼臉，很快大家都笑了起來。之後，大家都等到她說時間到了，才去碰蛋糕。她唱得很好，也會彈吉他，所以我們請她表演。後來，她在日本的奶奶用線上視訊通話看了這場表演。"
+  ]
+ }
+}

@@ -163,7 +163,71 @@ def assemble(tiles):
     return s
 
 
-def check_batch(path, show_frames=False):
+def gloss_stems(zh, extra=()):
+    """The Chinese strings that count as using a word's meaning: each ；-separated alternative of its
+    zhTW (notes in brackets dropped), also without a closing 的 or 著, plus any extras the batch lists."""
+    stems = set(extra)
+    for alt in re.split(r"[；;]", re.sub(r"[（(][^）)]*[）)]", "", zh)):
+        alt = alt.strip()
+        if alt:
+            stems.add(alt)
+            stems.add(re.sub(r"[的著]$", "", alt))
+    return {x for x in stems if x}
+
+
+def uses_gloss(zh, stems):
+    """True when the Chinese uses one of the stems. A two-character direction word such as 回去 or 回來
+    may be split by a place, as in 回家去 or 回到餐桌旁來."""
+    if any(x in zh for x in stems):
+        return True
+    return any(len(x) == 2 and x[1] in "來去" and re.search(re.escape(x[0]) + r"[^，。！？：；、]{1,4}" + x[1], zh) for x in stems)
+
+
+def check_translations(batch, words, trans, rep, name):
+    """Chinese for every example, two samples per Sentence Maker pattern, and every story part."""
+    han = re.compile(r"[一-鿿]")
+    extra = trans.get("extraGloss", {})
+    for w in words:
+        wid, where_w = w["id"], f"{name} {w['headword']}"
+        stems = gloss_stems(w["zhTW"], extra.get(wid, ()))
+        for lvl in LEVELS:
+            where = f"{where_w} [{lvl}]"
+            zh = trans.get("examples", {}).get(wid, {}).get(lvl, "")
+            if not han.search(zh):
+                rep.error(where, "no Chinese for the example sentence")
+            elif not uses_gloss(zh, stems):
+                rep.error(where, f"example's Chinese does not use the word's meaning {sorted(stems)}: {zh!r}")
+            samples = trans.get("samples", {}).get(wid, {}).get(lvl, [])
+            rows = w["frames"][lvl]["rows"]
+            want = [assemble([r["tiles"][0] for r in rows]), assemble([r["tiles"][-1] for r in rows])]
+            if len(samples) != 2:
+                rep.error(where, f"{len(samples)} sample sentences, expected 2")
+                continue
+            for sm, en in zip(samples, want):
+                if sm.get("en") != en:
+                    rep.error(where, f"sample is out of date: {sm.get('en')!r} but the pattern now gives {en!r}")
+                if not han.search(sm.get("zh", "")):
+                    rep.error(where, f"no Chinese for the sample {en!r}")
+                elif not uses_gloss(sm["zh"], stems):
+                    rep.error(where, f"sample's Chinese does not use the word's meaning {sorted(stems)}: {sm['zh']!r}")
+    for lvl in LEVELS:
+        parts = batch.get("stories", {}).get(lvl, {}).get("parts", [])
+        zhs = trans.get("stories", {}).get(lvl, [])
+        if len(zhs) != len(parts):
+            rep.error(f"{name} story [{lvl}]", f"{len(zhs)} Chinese parts for {len(parts)} English parts")
+            continue
+        for pi, (part, zh) in enumerate(zip(parts, zhs), 1):
+            where = f"{name} story [{lvl}] part {pi}"
+            if not han.search(zh):
+                rep.error(where, "no Chinese")
+                continue
+            for g in part["gaps"]:
+                wd = next((x for x in words if x["id"] == g["w"]), None)
+                if wd and not uses_gloss(zh, gloss_stems(wd["zhTW"], extra.get(wd["id"], ()))):
+                    rep.error(where, f"the Chinese never uses the meaning of {wd['headword']} ({wd['zhTW']})")
+
+
+def check_batch(path, show_frames=False, translations=None):
     rep = Report()
     name = path.name
     wordlist = json.loads((ROOT / "content" / "wordlist.json").read_text(encoding="utf-8"))["words"]
@@ -365,6 +429,15 @@ def check_batch(path, show_frames=False):
             extra = [u for u in set(used) if used.count(u) > 1]
             rep.error(where_l, f"every word must be a gap exactly once; missing {missing}, repeated {extra}")
         used_by_level[lvl] = used
+
+    # ---- 3b. Chinese translations ---------------------------------------------------------
+    if translations is None:
+        tpath = ROOT / "content" / "translations" / f"{batch.get('id')}.json"
+        translations = json.loads(tpath.read_text(encoding="utf-8")) if tpath.exists() else None
+    if translations is None:
+        rep.warn(name, "no Chinese sentence translations yet (content/translations)")
+    else:
+        check_translations(batch, words, translations, rep, name)
 
     # ---- 4. wording and provenance -----------------------------------------------------
     blob = json.dumps(batch, ensure_ascii=False).lower()

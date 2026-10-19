@@ -27,7 +27,7 @@
        "intermediate":{"rows":[{"label":"who","tiles":["I","We","They"]},{"label":"doWhat","target":true,"tiles":["will go","would like to go"]},{"label":"where","tiles":["to the beach tomorrow","to the zoo on Sunday","to the lake next week"]}]},
        "advanced":{"rows":[{"label":"who","tiles":["Tom","My sister","The teacher"]},{"label":"doWhat","tiles":["went home early","wanted to go home early"],"target":true},{"label":"why","tiles":["because it started to rain","because the road was closed","because the party was too loud"]}]}},
      "confusable":["goe","gow"]},
-    {"id":"w3988","headword":"pleasure","pos":"n","set":1,"forms":["pleasure","pleasures"],"zhTW":"樂趣；愉快","defEN":"A happy feeling.","emoji":"😊",
+    {"id":"w3988","headword":"pleasure","pos":"n","set":1,"forms":["pleasure","pleasures"],"zhTW":"樂趣；愉快的事","defEN":"A happy feeling.","emoji":"😊",
      "examples":{"beginner":"Music gives me {pleasure}.","intermediate":"Reading gives me great {pleasure}.","advanced":"He takes great {pleasure} in cooking for his friends and family."},
      "pick":{"beginner":["chair","sore","online"],"intermediate":["chair","earth","tea"],"advanced":["chair","earth","tea"]},
      "frames":{
@@ -67,7 +67,7 @@
        "intermediate":{"rows":[{"label":"where","tiles":["From space,","From the moon,","In the picture,"]},{"label":"what","tiles":["the Earth looks","the Earth seems"],"target":true},{"label":"how","tiles":["small and blue","very beautiful","like a big ball"]}]},
        "advanced":{"rows":[{"label":"who","tiles":["Many people","The students","My classmates"]},{"label":"doWhat","tiles":["want to protect the Earth","work hard to save the Earth"],"target":true},{"label":"why","tiles":["because it is our only home","because the air is getting dirty","so everyone can live well"]}]}},
      "confusable":["erth","earht"]},
-    {"id":"w2573","headword":"hold","pos":"v","set":2,"forms":["hold","holds","held","holding"],"zhTW":"拿著；抱著；握住","defEN":"To keep something in your hands.","emoji":"🤲",
+    {"id":"w2573","headword":"hold","pos":"v","set":2,"forms":["hold","holds","held","holding"],"zhTW":"拿著；抱著；握住；扶著","defEN":"To keep something in your hands.","emoji":"🤲",
      "examples":{"beginner":"Please {hold} my bag.","intermediate":"She {held} the baby in her arms.","advanced":"He {holds} the door open for people who carry heavy bags."},
      "pick":{"beginner":["chair","sore","tea"],"intermediate":["go","look","fight"],"advanced":["look","touch","fight"]},
      "frames":{

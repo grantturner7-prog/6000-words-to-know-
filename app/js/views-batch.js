@@ -21,10 +21,60 @@
     const el = G.$('#prog'); if (!el) return;
     el.innerHTML = Array.from({ length: n }, (_, k) => '<i class="' + (k < i ? 'on' : k === i ? 'now' : '') + '"></i>').join('');
   }
+  /* The five activities of a lesson in the order a student does them. */
+  const SEQ = [
+    { key: 'meet', path: '/meet', name: () => t('step.meet'), what: () => t('station.meet.d'), done: p => p.meet[0] > 0 },
+    { key: 'pick', path: '/use/pick', name: () => t('act.pick'), what: () => t('act.pick.d'), done: p => p.pick[0] !== null },
+    { key: 'maker', path: '/use/maker', name: () => t('act.maker'), what: () => t('act.maker.d'), done: p => p.maker[0] > 0 },
+    { key: 'bee', path: '/use/bee', name: () => t('act.bee'), what: () => t('act.bee.d'), done: p => p.bee[0] !== null },
+    { key: 'story', path: '/story', name: () => t('station.story'), what: () => t('station.story.d'), done: p => p.story[0] > 0 }
+  ];
+  /* The strip shows the lesson as the three stations on the hub; the Use station counts its three activities. */
+  const GROUPS = [{ name: 'station.meet', keys: ['meet'] }, { name: 'station.use', keys: ['pick', 'maker', 'bee'] }, { name: 'station.story', keys: ['story'] }];
+  /* What the student sees when an activity ends: the five steps, one big button that names the next activity,
+     and two smaller buttons that each say where they go. Progress for `key` is saved before this is called. */
+  function lessonEnd(b, key) {
+    const lv = G.level(), p = G.pg(b.id, lv), n = G.batchNo(b.id), base = '#/batch/' + b.id;
+    const state = SEQ.map(s => s.done(p)), at = SEQ.findIndex(s => s.key === key), count = state.filter(Boolean).length;
+    let nx = -1;
+    for (let k = 1; k < SEQ.length && nx < 0; k++) { const j = (at + k) % SEQ.length; if (!state[j]) nx = j; }
+    const strip = '<ol class="steps" aria-label="' + esc(t('finish.steps')) + '">' + GROUPS.map((g, j) => {
+      const idx = g.keys.map(k => SEQ.findIndex(s => s.key === k)), got = idx.filter(i => state[i]).length;
+      const all = got === idx.length, isNext = idx.indexOf(nx) >= 0, name = t(g.name), sub = idx.length > 1 ? got + ' / ' + idx.length : '';
+      const label = (all ? t('finish.stepDone', { name }) : isNext ? t('finish.stepNext', { name }) : name) + (sub ? ' ' + sub : '');
+      return '<li class="step ' + (all ? 'done' : isNext ? 'next' : '') + '" aria-label="' + esc(label) + '"><i aria-hidden="true">' + (all ? '✓' : j + 1) + '</i><span aria-hidden="true">' + esc(name) + (sub ? '<small>' + sub + '</small>' : '') + '</span></li>';
+    }).join('') + '</ol>';
+    const out = { strip, count: t('finish.count', { n: count, level: t('level.' + lv) }), alts: [{ label: t('finish.again'), act: 'replay' }, { label: t('finish.menu'), href: base }] };
+    if (nx >= 0) { out.primary = { label: t('finish.next', { name: SEQ[nx].name() }), href: base + SEQ[nx].path }; out.what = SEQ[nx].what(); }
+    else {
+      out.complete = t('finish.complete', { n, level: t('level.' + lv) });
+      const up = G.LEVELS[G.LEVELS.indexOf(lv) + 1];
+      if (up) { out.primary = { label: t('finish.levelUp', { n, level: t('level.' + up) }), act: 'levelUp', v: up, go: base + '/meet' }; out.what = t('finish.levelWhat'); }
+      else { out.primary = { label: t('finish.today'), href: '#/today' }; out.what = t('finish.todayWhat'); }
+    }
+    return out;
+  }
+  G.acts.levelUp = el => {
+    G.state.prefs.level = el.getAttribute('data-v'); G.save();
+    const h = el.getAttribute('data-go');
+    if (location.hash === h) G.render(); else location.hash = h;
+  };
+  G.acts.replay = () => G.render();
+  const endBtn = (a, cls) => a.href
+    ? '<a class="btn ' + cls + '" href="' + a.href + '">' + esc(a.label) + '</a>'
+    : '<button class="btn ' + cls + '" data-act="' + a.act + '"' + (a.v ? ' data-v="' + a.v + '"' : '') + (a.go ? ' data-go="' + a.go + '"' : '') + '>' + esc(a.label) + '</button>';
+  function finishHtml(o) {
+    return '<div class="finish">' + (o.strip || '') + endBtn(o.primary, 'primary lg') + (o.what ? '<div class="sub what">' + esc(o.what) + '</div>' : '') +
+      '<div class="alt">' + o.alts.map(a => endBtn(a, 'ghost')).join('') + '</div></div>';
+  }
   function finishCard(stage, o) {
-    stage.innerHTML = '<div class="banner glass"><span class="big">' + (o.emoji || '🎉') + '</span><div><b>' + esc(o.title) + '</b>' + (o.text ? '<div class="sub">' + esc(o.text) + '</div>' : '') + '</div></div>' +
-      '<div class="row wrap" style="justify-content:center">' + o.actions.map(a => '<a class="btn ' + (a.primary ? 'primary' : 'ghost') + '" ' + (a.href ? 'href="' + a.href + '"' : 'data-act="' + a.act + '"') + '>' + esc(a.label) + '</a>').join('') + '</div>';
+    stage.innerHTML = '<div class="banner glass"><span class="big">' + (o.emoji || '🎉') + '</span><div><b>' + esc(o.title) + '</b>' + (o.text ? '<div class="sub">' + esc(o.text) + '</div>' : '') + '</div></div>' + finishHtml(o);
     G.confetti(); G.touchStreak();
+  }
+  /* The end screen for one of the five lesson activities. `result` is the line about how it went. */
+  function endLesson(stage, b, key, result, emoji) {
+    const e = lessonEnd(b, key);
+    finishCard(stage, Object.assign(e, { emoji: e.complete ? '🏆' : emoji, title: e.complete || result, text: e.complete ? result : e.count }));
   }
   const levelSupport = () => ({ beginner: 0, intermediate: 2, advanced: 3 }[G.level()]);
 
@@ -63,7 +113,8 @@
      whole lesson), then Build it for all 20. */
   function meetFlow(root, b, ws) {
     const stage = G.$('#stage', root), lv = G.level(), ROUND = 5;
-    let step = 0, card = 0, mround = 0, cleanupDnd = null;
+    let step = 0, card = 0, mround = 0, mdone = false, cleanupDnd = null;
+    const toBuildBtn = () => '<button class="btn primary lg" data-act="toBuild">' + esc(t('meet.toBuild')) + G.icon('arrow') + '</button>';
 
     function cards() {
       setProg(0, 3);
@@ -76,7 +127,7 @@
         (G.zhOn() ? '<div class="zh">' + esc(w.zhTW) + '</div>' : '') +
         '<div class="ex">' + G.exHtml(w.examples[lv], w.id) + ' <button class="iconbtn" style="width:36px;height:36px;vertical-align:middle" data-act="say" data-say="' + esc(G.exPlain(w.examples[lv])) + '" aria-label="' + esc(t('common.listen')) + '">' + G.icon('speaker') + '</button></div></div>' +
         '<div class="row">' + (card > 0 ? '<button class="btn ghost" data-act="cardPrev">' + G.icon('back') + esc(t('common.back')) + '</button>' : '') +
-        '<button class="btn primary" data-act="cardNext">' + esc(card === ws.length - 1 ? t('meet.toMatch') : t('common.next')) + G.icon('arrow') + '</button></div>';
+        '<button class="btn primary' + (card === ws.length - 1 ? ' lg' : '') + '" data-act="cardNext">' + esc(card === ws.length - 1 ? t('meet.toMatch') : t('common.next')) + G.icon('arrow') + '</button></div>';
     }
     G.acts.cardNext = () => { if (card < ws.length - 1) { card++; cards(); G.say(ws[card].headword); } else { step = 1; match(); } };
     G.acts.cardPrev = () => { if (card > 0) { card--; cards(); G.say(ws[card].headword); } };
@@ -87,7 +138,7 @@
       stage.innerHTML = '<div class="row between wrap" style="width:100%"><h3>' + esc(t('match.title')) + '</h3><span class="hint-text" id="mc">' + esc(t('match.count', { n: mround * ROUND, m: ws.length })) + '</span></div><div class="match"><div class="col">' +
         left.map(w => '<button class="chip" data-w="' + w.id + '">' + (w.emoji || '') + ' ' + esc(w.headword) + '</button>').join('') + '</div><div class="col">' +
         right.map(w => '<div class="mean dz" data-w="' + w.id + '" role="button" tabindex="0" aria-label="' + esc(w.defEN) + '"><span>' + esc(w.defEN) + (G.zhOn() ? '<span class="zh">' + esc(w.zhTW) + '</span>' : '') + '</span><span class="slotfill"></span></div>').join('') + '</div></div>' +
-        '<div class="hint-text" id="fb" style="min-height:22px"></div>';
+        '<div class="hint-text" id="fb" style="min-height:22px"></div><div class="row" id="nx" style="justify-content:center"></div>';
       let matched = 0;
       const d = G.dnd.attach(stage, {
         chip: '.chip', zone: '.mean',
@@ -98,7 +149,7 @@
             fb.textContent = t('fb.great'); G.$('#mc', stage).textContent = t('match.count', { n: mround * ROUND + matched, m: ws.length });
             if (matched === chunk.length) {
               if ((mround + 1) * ROUND < ws.length) { mround++; setTimeout(match, 700); }
-              else { fb.textContent = t('match.great'); setTimeout(() => { step = 2; build(); }, 900); }
+              else { mdone = true; fb.textContent = t('match.great'); G.$('#nx', stage).innerHTML = toBuildBtn(); }
             }
           } else {
             zone.classList.add('shake'); chip.classList.add('shake'); fb.textContent = t('match.tryAnother');
@@ -109,17 +160,23 @@
       cleanupDnd = d.clearSel;
     }
 
+    function matchEnd() {
+      setProg(1, 3);
+      stage.innerHTML = '<div class="hint-text">' + esc(t('match.great')) + '</div><div class="row" style="justify-content:center">' + toBuildBtn() + '</div>';
+    }
+    G.acts.toBuild = () => { step = 2; build(); };
+
     function build() {
       setProg(2, 3);
       buildRound(stage, ws, {
         mode: 'build',
         onDone: () => {
           const p = G.pg(b.id, lv); p.meet[0] = 1; G.save();
-          finishCard(stage, { emoji: '🌟', title: t('meet.complete'), actions: [{ label: t('station.use'), href: '#/batch/' + b.id + '/use/pick', primary: true }, { label: t('story.finish'), href: '#/batch/' + b.id }] });
+          endLesson(stage, b, 'meet', t('meet.complete'), '🌟');
         }
       });
     }
-    G.redraw = () => { if (step === 0) cards(); else if (step === 1) match(); };
+    G.redraw = () => { if (step === 0) cards(); else if (step === 1) { if (mdone) matchEnd(); else match(); } };
     cards(); G.say(ws[0].headword);
   }
 
@@ -182,7 +239,7 @@
         fb.textContent = t('build.great'); if (!wrongThisWord) firstTry++;
         G.say(words[i].headword);
         const last = i === words.length - 1;
-        G.$('#nx', stage).innerHTML = '<button class="btn primary" data-act="bNext">' + esc(last ? t('common.done') : t('build.next')) + G.icon('arrow') + '</button>';
+        G.$('#nx', stage).innerHTML = '<button class="btn primary" data-act="bNext">' + esc(last ? t(o.lastLabel || 'finish.last') : t('build.next')) + G.icon('arrow') + '</button>';
       } else {
         wrongThisWord = true; fb.textContent = t('build.almost');
         slots.forEach(s => { if (s.querySelector('.chip').dataset.ch !== cur.letters[+s.dataset.k]) { s.classList.add('wrong', 'shake'); } });
@@ -208,12 +265,7 @@
           const p = G.pg(id, lv);
           if (act === 'pick') p.pick[0] = score; else if (act === 'maker') p.maker[0] = Math.max(1, score); else p.bee[0] = score;
           G.save();
-          const nextHref = act === 'pick' ? '#/batch/' + id + '/use/maker' : act === 'maker' ? '#/batch/' + id + '/use/bee' : '#/batch/' + id + '/story';
-          finishCard(stage, {
-            emoji: '🎯', title: act === 'maker' ? t('maker.saved') : t('pick.score', { n: score, m: total }),
-            actions: [{ label: act === 'bee' ? t('station.story') : t('common.next'), href: nextHref, primary: true }, { label: t('common.again'), act: 'replay' }, { label: t('story.finish'), href: '#/batch/' + id }]
-          });
-          G.acts.replay = () => { location.hash = '#/batch/' + id + '/use/' + act; G.render(); };
+          endLesson(stage, b, act, act === 'maker' ? t('maker.done') : t('pick.score', { n: score, m: total }), '🎯');
         };
         if (act === 'pick') pickRound(stage, b, ws, done);
         else if (act === 'maker') makerRound(stage, ws, done);
@@ -259,7 +311,7 @@
       });
     }
     function finish() {
-      G.$('#nx', stage).innerHTML = '<button class="btn primary" data-act="pNext">' + esc(i === order.length - 1 ? t('common.done') : t('common.next')) + G.icon('arrow') + '</button>';
+      G.$('#nx', stage).innerHTML = '<button class="btn primary" data-act="pNext">' + esc(i === order.length - 1 ? t('finish.seeScore') : t('pick.next')) + G.icon('arrow') + '</button>';
     }
     G.acts.pNext = () => { if (i < order.length - 1) { i++; draw(); } else onDone(score, order.length); };
     G.redraw = draw; draw();
@@ -292,7 +344,7 @@
           const text = ASSEMBLE(chosen); pv.classList.add('done'); pv.textContent = text; draw.text = text;
           G.$('#nx', stage).innerHTML = '<button class="btn ghost" data-act="say" data-say="' + esc(text) + '">' + G.icon('speaker') + esc(t('common.listen')) + '</button>' +
             '<button class="btn ghost" data-act="mSave">' + G.icon('star') + esc(t('maker.save')) + '</button>' +
-            '<button class="btn primary" data-act="mNext">' + esc(i === words.length - 1 ? t('common.done') : t('maker.next')) + G.icon('arrow') + '</button>';
+            '<button class="btn primary" data-act="mNext">' + esc(i === words.length - 1 ? t('finish.last') : t('maker.next')) + G.icon('arrow') + '</button>';
         } else {
           pv.classList.remove('done');
           pv.innerHTML = chosen.some(Boolean) ? esc(ASSEMBLE(chosen.map(x => x || '…'))) : '<span class="ph">' + esc(t('maker.placeholder')) + '</span>';
@@ -326,7 +378,7 @@
         if (btn.dataset.o === w.headword) {
           btn.classList.add('right'); G.$$('.opt', stage).forEach(x => { x.disabled = true; }); fb.textContent = t('bee.great');
           if (tries === 0) score++; G.say(w.headword);
-          G.$('#nx', stage).innerHTML = '<button class="btn primary" data-act="beeNext">' + esc(i === order.length - 1 ? t('common.done') : t('common.next')) + G.icon('arrow') + '</button>';
+          G.$('#nx', stage).innerHTML = '<button class="btn primary" data-act="beeNext">' + esc(i === order.length - 1 ? t('finish.seeScore') : t('build.next')) + G.icon('arrow') + '</button>';
         } else { tries++; btn.classList.add('wrong', 'shake'); fb.textContent = t('bee.tryAnother'); setTimeout(() => btn.classList.remove('shake'), 480); }
       }));
       G.say(w.headword);
@@ -413,13 +465,13 @@
       const fb = G.$('#fb', stage); fb.textContent = G.$$('.gap.reveal', stage).length ? t('story.showAnswer') : t('story.allCorrect');
       const full = pieces.map(x => { const m = x.match(/^\[\[(\d+)\]\]$/); return m ? gaps[m[1] - 1].form : x; }).join('');
       const star = G.hasStar(b.id, lv);
+      const e = lessonEnd(b, 'story');
       G.$('#nx', stage).innerHTML = '<button class="btn ghost" data-act="say" data-say="' + esc(full) + '">' + G.icon('speaker') + esc(t('story.readAgain')) + '</button>' +
-        '<a class="btn primary" href="#/batch/' + b.id + '">' + esc(t('story.finish')) + G.icon('arrow') + '</a>' +
-        '<button class="btn ghost" data-act="sAgain">' + G.icon('refresh') + esc(t('common.again')) + '</button>';
+        '<div class="hint-text" style="flex-basis:100%">' + esc(e.complete || e.count) + '</div>' + finishHtml(e);
       if (star) { fb.textContent += ' ⭐ ' + t('story.starEarned'); }
       G.confetti(); G.touchStreak();
+      try { G.$('#nx .btn.primary', stage).scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (err) { /* older browsers */ }
     }
-    G.acts.sAgain = () => { G.render(); };
     G.redraw = () => { if (!state.done) { const keep = G.$$('.gap.locked', stage).length === 0; if (keep) draw(); } };
     draw();
   }
@@ -432,10 +484,9 @@
         const stage = G.$('#stage', root), ws = b.words, lv = G.level();
         const done = (score, total) => {
           const p = G.pg(id, lv); p[act][0] = score; G.save();
-          finishCard(stage, { emoji: '🏆', title: t('pick.score', { n: score, m: total }), actions: [{ label: t('games.title'), href: '#/games', primary: true }, { label: t('common.again'), act: 'gAgain' }] });
+          finishCard(stage, { emoji: '🏆', title: t('pick.score', { n: score, m: total }), primary: { label: t('finish.games'), href: '#/games' }, what: t('games.sub'), alts: [{ label: t('finish.gameAgain'), act: 'replay' }] });
         };
-        G.acts.gAgain = () => G.render();
-        if (act === 'bee') beeRound(stage, ws, done); else buildRound(stage, ws, { mode: act, onDone: done });
+        if (act === 'bee') beeRound(stage, ws, done); else buildRound(stage, ws, { mode: act, onDone: done, lastLabel: 'finish.seeScore' });
       };
       return pg;
     });

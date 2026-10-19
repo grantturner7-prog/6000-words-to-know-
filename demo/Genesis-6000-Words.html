@@ -281,6 +281,18 @@ h3{font-size:19px;font-weight:700;letter-spacing:-.01em}
 /* finish banner, toast, popover, sheet */
 .banner{padding:22px 26px;border-radius:26px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;justify-content:center;text-align:center;background:linear-gradient(135deg,rgba(65,224,138,.35),rgba(65,224,138,.08))}
 .banner .big{font-size:42px}.banner b{font-size:22px}
+/* end of an activity: where you are, then one big button that says what comes next */
+.finish{display:flex;flex-direction:column;align-items:center;gap:16px;width:100%}
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;width:100%;max-width:420px;margin:0;padding:0;list-style:none}
+.step{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0;font-size:14px;font-weight:700;line-height:1.25;color:var(--ink2);overflow-wrap:anywhere}
+.step small{display:block;font-size:12px;font-weight:600;color:var(--ink3)}
+.step i{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;font-style:normal;font-size:17px;font-weight:800;color:var(--ink);background:rgba(var(--tint),.12);border:2px solid rgba(var(--tint),.32)}
+.step.done i{background:var(--ok);border-color:var(--ok);color:#06210f}
+.step.next{color:var(--ink)}
+.step.next i{border-color:rgb(var(--lv-rgb));box-shadow:0 0 0 4px rgba(var(--lv-rgb),.28);background:rgba(var(--lv-rgb),.22)}
+.btn.lg{min-height:60px;padding:0 32px;font-size:19px;border-radius:32px;white-space:normal;text-align:center;line-height:1.25;width:100%;max-width:460px}
+.finish .what{margin-top:-6px;max-width:460px}
+.finish .alt{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
 .toasts{position:fixed;left:0;right:0;padding-inline:max(16px,env(safe-area-inset-left,0px));bottom:calc(96px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;align-items:center;gap:8px;z-index:900;pointer-events:none}
 @media (min-width:901px){.toasts{bottom:28px}}
 .toast{padding:12px 22px;border-radius:999px;font-weight:700;font-size:15px;background-color:var(--float);animation:rise .3s both;pointer-events:auto}
@@ -367,22 +379,30 @@ window.G_INLINE={"batches":{"batchSize":20,"setSize":5,"note":"Stage = CEEC leve
     'batch.level': 'Level', 'batch.zh': 'Chinese meanings', 'batch.stars': 'Level stars',
     'batch.wordsIn': 'The 20 words in this lesson',
     'meet.cards.title': 'Meet your words', 'meet.tapHint': 'Tap the word for its meaning.',
-    'meet.cardOf': 'Card {n} of {m}', 'meet.toMatch': 'On to Match it', 'meet.toBuild': 'On to Build it',
+    'meet.cardOf': 'Card {n} of {m}', 'meet.toMatch': 'Next: match words to meanings', 'meet.toBuild': 'Next: spell the words',
     'match.title': 'Drag each word to its meaning', 'match.count': 'Matched {n} of {m}', 'meet.complete': 'You met all 20 words!', 'common.start': 'Start', 'match.great': 'All matched. Well done!', 'match.tryAnother': 'Almost! Try another meaning.',
     'build.title': 'Spell the word', 'build.hearIt': 'Tap Listen to hear it.', 'build.almost': 'Almost! Check the amber letters.',
     'build.great': 'Great spelling!', 'build.next': 'Next word',
     'use.title': 'Use the words', 'use.sub': 'Each activity uses all 20 words.',
     'pick.title': 'Drag the word that fits the sentence', 'pick.great': 'Yes! That fits.', 'pick.reveal': 'The answer is shown for you.',
-    'pick.score': 'You got {n} out of {m} on the first try.',
+    'pick.score': 'You got {n} out of {m} on the first try.', 'pick.next': 'Next sentence',
     'maker.title': 'Build your own sentence', 'maker.sub': 'Choose one tile in each row. The word is already in the sentence.',
-    'maker.save': 'Save my sentence', 'maker.saved': 'Saved to My Sentences', 'maker.next': 'Next word', 'maker.placeholder': 'Your sentence appears here',
+    'maker.save': 'Save my sentence', 'maker.saved': 'Saved to My Sentences', 'maker.done': 'You made a sentence for all 20 words!', 'maker.next': 'Next word', 'maker.placeholder': 'Your sentence appears here',
     'maker.who': 'Who', 'maker.what': 'What', 'maker.doWhat': 'What happens', 'maker.when': 'When', 'maker.where': 'Where', 'maker.why': 'Why', 'maker.how': 'How', 'maker.extra': 'More',
     'bee.title': 'Listen and choose the spelling', 'bee.great': 'Correct spelling!', 'bee.tryAnother': 'Almost! Look again.',
     'story.title': 'Fill the gaps', 'story.sub': 'Drag each word to its gap, or tap a word and then a gap.',
     'story.gapN': 'Gap {n}', 'story.allCorrect': 'Every word is in the right place!', 'story.keepGoing': '{n} gaps are right. Move the others and check again.',
     'story.showAnswer': 'Blue gaps show the answer for you.', 'story.starEarned': 'You earned a star at this level!',
-    'story.readAgain': 'Read it to me', 'story.partDone': 'Part {n} complete', 'story.nextPart': 'On to Part {n}', 'story.finish': 'Back to the lesson',
+    'story.readAgain': 'Read it to me', 'story.partDone': 'Part {n} complete', 'story.nextPart': 'On to Part {n}',
     'story.bank': 'Word bank',
+    'step.meet': 'Meet the words',
+    'finish.count': '{n} of 5 activities done at {level} level.', 'finish.steps': 'Your lesson steps',
+    'finish.next': 'Next activity: {name}', 'finish.again': 'Do this activity again', 'finish.menu': 'Go to the lesson menu',
+    'finish.stepDone': '{name}, done', 'finish.stepNext': '{name}, next',
+    'finish.complete': 'Lesson {n} complete at {level} level!', 'finish.levelUp': 'Do Lesson {n} at {level} level',
+    'finish.levelWhat': 'The same 20 words, in new sentences and a new article.', 'finish.today': 'Back to Today',
+    'finish.todayWhat': 'See your progress and play a game.', 'finish.games': 'Back to Games', 'finish.gameAgain': 'Play this game again',
+    'finish.seeScore': 'See my score', 'finish.last': 'Finish this activity',
     'games.title': 'Games', 'games.sub': 'Quick spelling games for your current lesson.',
     'games.spelling': 'Spelling', 'games.arcade': 'Arcade', 'games.pickBatch': 'Playing with Lesson {n} at {level} level',
     'games.wordRain': 'Word Rain', 'games.memory': 'Memory Match', 'games.speed': 'Speed Match',
@@ -449,24 +469,32 @@ window.G_INLINE={"batches":{"batchSize":20,"setSize":5,"note":"Stage = CEEC leve
     'batch.level': '級別', 'batch.zh': '中文解釋', 'batch.stars': '級別星星',
     'batch.wordsIn': '這一課的 20 個單字',
     'meet.cards.title': '認識新單字', 'meet.tapHint': '點選單字可以看意思。',
-    'meet.cardOf': '第 {n} 張，共 {m} 張', 'meet.toMatch': '前往配對', 'meet.toBuild': '前往拼拼看',
+    'meet.cardOf': '第 {n} 張，共 {m} 張', 'meet.toMatch': '下一步：把單字配對到意思', 'meet.toBuild': '下一步：拼出單字',
     'match.title': '把每個單字拖到它的意思', 'match.count': '已配對 {n} / {m}', 'meet.complete': '你認識了全部 20 個單字！', 'common.start': '開始', 'match.great': '全部配對成功，做得好！', 'match.tryAnother': '差一點！試試別的意思。',
     'build.title': '拼出這個單字', 'build.hearIt': '按「聽發音」聽聽看。', 'build.almost': '差一點！請看橘色的字母。',
     'build.great': '拼得真好！', 'build.next': '下一個單字',
     'use.title': '運用單字', 'use.sub': '每個活動都用到全部 20 個單字。',
     'pick.title': '把適合句子的單字拖進去', 'pick.great': '答對了！這個字很適合。', 'pick.reveal': '答案已經顯示給你。',
-    'pick.score': '第一次就答對 {n} 題，共 {m} 題。',
+    'pick.score': '第一次就答對 {n} 題，共 {m} 題。', 'pick.next': '下一個句子',
     'maker.title': '組成你自己的句子', 'maker.sub': '每一列選一個方塊。單字已經在句子裡了。',
-    'maker.save': '儲存我的句子', 'maker.saved': '已儲存到「我的句子」', 'maker.next': '下一個單字', 'maker.placeholder': '你的句子會出現在這裡',
+    'maker.save': '儲存我的句子', 'maker.saved': '已儲存到「我的句子」', 'maker.done': '你為 20 個單字都造了句子！', 'maker.next': '下一個單字', 'maker.placeholder': '你的句子會出現在這裡',
     'maker.who': '誰', 'maker.what': '什麼', 'maker.doWhat': '發生什麼事', 'maker.when': '什麼時候', 'maker.where': '在哪裡', 'maker.why': '為什麼', 'maker.how': '怎麼樣', 'maker.extra': '更多',
     'bee.title': '聽發音，選出正確拼法', 'bee.great': '拼法正確！', 'bee.tryAnother': '差一點！再看一次。',
     'story.title': '填空', 'story.sub': '把每個單字拖到空格，或先點單字再點空格。',
     'story.gapN': '第 {n} 格', 'story.allCorrect': '每個單字都放對位置了！', 'story.keepGoing': '已經答對 {n} 格。請移動其他單字再檢查一次。',
     'story.showAnswer': '藍色空格是替你顯示的答案。', 'story.starEarned': '你在這個級別獲得了一顆星星！',
-    'story.readAgain': '唸給我聽', 'story.partDone': '第 {n} 部分完成', 'story.nextPart': '前往第 {n} 部分', 'story.finish': '回到這一課',
+    'story.readAgain': '唸給我聽', 'story.partDone': '第 {n} 部分完成', 'story.nextPart': '前往第 {n} 部分',
     'story.bank': '單字庫',
+    'step.meet': '認識單字',
+    'finish.count': '{level}：已完成 {n} / 5 個活動。', 'finish.steps': '這一課的步驟',
+    'finish.next': '下一個活動：{name}', 'finish.again': '再做一次這個活動', 'finish.menu': '回到這一課的選單',
+    'finish.stepDone': '{name}，已完成', 'finish.stepNext': '{name}，下一個',
+    'finish.complete': '第 {n} 課完成（{level}）！', 'finish.levelUp': '用{level}做第 {n} 課',
+    'finish.levelWhat': '同樣的 20 個單字，搭配新的句子和新的文章。', 'finish.today': '回到今天',
+    'finish.todayWhat': '看看你的進度，再玩一個遊戲。', 'finish.games': '回到遊戲', 'finish.gameAgain': '再玩一次這個遊戲',
+    'finish.seeScore': '看我的分數', 'finish.last': '完成這個活動',
     'games.title': '遊戲', 'games.sub': '用目前這一課的單字玩快速拼字遊戲。',
-    'games.spelling': '拼字', 'games.arcade': '遊樂場', 'games.pickBatch': '正在玩第 {n} 課，{level}級別',
+    'games.spelling': '拼字', 'games.arcade': '遊樂場', 'games.pickBatch': '正在玩第 {n} 課（{level}）',
     'games.wordRain': '單字雨', 'games.memory': '記憶配對', 'games.speed': '快速配對',
     'games.wordRain.d': '接住正確的掉落單字', 'games.memory.d': '把單字和意思配成一對', 'games.speed.d': '60 秒快速配對',
     'missing.title': '點選缺少的字母', 'missing.great': '你全部找到了！',
@@ -1200,10 +1228,60 @@ window.G_INLINE={"batches":{"batchSize":20,"setSize":5,"note":"Stage = CEEC leve
     const el = G.$('#prog'); if (!el) return;
     el.innerHTML = Array.from({ length: n }, (_, k) => '<i class="' + (k < i ? 'on' : k === i ? 'now' : '') + '"></i>').join('');
   }
+  /* The five activities of a lesson in the order a student does them. */
+  const SEQ = [
+    { key: 'meet', path: '/meet', name: () => t('step.meet'), what: () => t('station.meet.d'), done: p => p.meet[0] > 0 },
+    { key: 'pick', path: '/use/pick', name: () => t('act.pick'), what: () => t('act.pick.d'), done: p => p.pick[0] !== null },
+    { key: 'maker', path: '/use/maker', name: () => t('act.maker'), what: () => t('act.maker.d'), done: p => p.maker[0] > 0 },
+    { key: 'bee', path: '/use/bee', name: () => t('act.bee'), what: () => t('act.bee.d'), done: p => p.bee[0] !== null },
+    { key: 'story', path: '/story', name: () => t('station.story'), what: () => t('station.story.d'), done: p => p.story[0] > 0 }
+  ];
+  /* The strip shows the lesson as the three stations on the hub; the Use station counts its three activities. */
+  const GROUPS = [{ name: 'station.meet', keys: ['meet'] }, { name: 'station.use', keys: ['pick', 'maker', 'bee'] }, { name: 'station.story', keys: ['story'] }];
+  /* What the student sees when an activity ends: the five steps, one big button that names the next activity,
+     and two smaller buttons that each say where they go. Progress for `key` is saved before this is called. */
+  function lessonEnd(b, key) {
+    const lv = G.level(), p = G.pg(b.id, lv), n = G.batchNo(b.id), base = '#/batch/' + b.id;
+    const state = SEQ.map(s => s.done(p)), at = SEQ.findIndex(s => s.key === key), count = state.filter(Boolean).length;
+    let nx = -1;
+    for (let k = 1; k < SEQ.length && nx < 0; k++) { const j = (at + k) % SEQ.length; if (!state[j]) nx = j; }
+    const strip = '<ol class="steps" aria-label="' + esc(t('finish.steps')) + '">' + GROUPS.map((g, j) => {
+      const idx = g.keys.map(k => SEQ.findIndex(s => s.key === k)), got = idx.filter(i => state[i]).length;
+      const all = got === idx.length, isNext = idx.indexOf(nx) >= 0, name = t(g.name), sub = idx.length > 1 ? got + ' / ' + idx.length : '';
+      const label = (all ? t('finish.stepDone', { name }) : isNext ? t('finish.stepNext', { name }) : name) + (sub ? ' ' + sub : '');
+      return '<li class="step ' + (all ? 'done' : isNext ? 'next' : '') + '" aria-label="' + esc(label) + '"><i aria-hidden="true">' + (all ? '✓' : j + 1) + '</i><span aria-hidden="true">' + esc(name) + (sub ? '<small>' + sub + '</small>' : '') + '</span></li>';
+    }).join('') + '</ol>';
+    const out = { strip, count: t('finish.count', { n: count, level: t('level.' + lv) }), alts: [{ label: t('finish.again'), act: 'replay' }, { label: t('finish.menu'), href: base }] };
+    if (nx >= 0) { out.primary = { label: t('finish.next', { name: SEQ[nx].name() }), href: base + SEQ[nx].path }; out.what = SEQ[nx].what(); }
+    else {
+      out.complete = t('finish.complete', { n, level: t('level.' + lv) });
+      const up = G.LEVELS[G.LEVELS.indexOf(lv) + 1];
+      if (up) { out.primary = { label: t('finish.levelUp', { n, level: t('level.' + up) }), act: 'levelUp', v: up, go: base + '/meet' }; out.what = t('finish.levelWhat'); }
+      else { out.primary = { label: t('finish.today'), href: '#/today' }; out.what = t('finish.todayWhat'); }
+    }
+    return out;
+  }
+  G.acts.levelUp = el => {
+    G.state.prefs.level = el.getAttribute('data-v'); G.save();
+    const h = el.getAttribute('data-go');
+    if (location.hash === h) G.render(); else location.hash = h;
+  };
+  G.acts.replay = () => G.render();
+  const endBtn = (a, cls) => a.href
+    ? '<a class="btn ' + cls + '" href="' + a.href + '">' + esc(a.label) + '</a>'
+    : '<button class="btn ' + cls + '" data-act="' + a.act + '"' + (a.v ? ' data-v="' + a.v + '"' : '') + (a.go ? ' data-go="' + a.go + '"' : '') + '>' + esc(a.label) + '</button>';
+  function finishHtml(o) {
+    return '<div class="finish">' + (o.strip || '') + endBtn(o.primary, 'primary lg') + (o.what ? '<div class="sub what">' + esc(o.what) + '</div>' : '') +
+      '<div class="alt">' + o.alts.map(a => endBtn(a, 'ghost')).join('') + '</div></div>';
+  }
   function finishCard(stage, o) {
-    stage.innerHTML = '<div class="banner glass"><span class="big">' + (o.emoji || '🎉') + '</span><div><b>' + esc(o.title) + '</b>' + (o.text ? '<div class="sub">' + esc(o.text) + '</div>' : '') + '</div></div>' +
-      '<div class="row wrap" style="justify-content:center">' + o.actions.map(a => '<a class="btn ' + (a.primary ? 'primary' : 'ghost') + '" ' + (a.href ? 'href="' + a.href + '"' : 'data-act="' + a.act + '"') + '>' + esc(a.label) + '</a>').join('') + '</div>';
+    stage.innerHTML = '<div class="banner glass"><span class="big">' + (o.emoji || '🎉') + '</span><div><b>' + esc(o.title) + '</b>' + (o.text ? '<div class="sub">' + esc(o.text) + '</div>' : '') + '</div></div>' + finishHtml(o);
     G.confetti(); G.touchStreak();
+  }
+  /* The end screen for one of the five lesson activities. `result` is the line about how it went. */
+  function endLesson(stage, b, key, result, emoji) {
+    const e = lessonEnd(b, key);
+    finishCard(stage, Object.assign(e, { emoji: e.complete ? '🏆' : emoji, title: e.complete || result, text: e.complete ? result : e.count }));
   }
   const levelSupport = () => ({ beginner: 0, intermediate: 2, advanced: 3 }[G.level()]);
 
@@ -1242,7 +1320,8 @@ window.G_INLINE={"batches":{"batchSize":20,"setSize":5,"note":"Stage = CEEC leve
      whole lesson), then Build it for all 20. */
   function meetFlow(root, b, ws) {
     const stage = G.$('#stage', root), lv = G.level(), ROUND = 5;
-    let step = 0, card = 0, mround = 0, cleanupDnd = null;
+    let step = 0, card = 0, mround = 0, mdone = false, cleanupDnd = null;
+    const toBuildBtn = () => '<button class="btn primary lg" data-act="toBuild">' + esc(t('meet.toBuild')) + G.icon('arrow') + '</button>';
 
     function cards() {
       setProg(0, 3);
@@ -1255,7 +1334,7 @@ window.G_INLINE={"batches":{"batchSize":20,"setSize":5,"note":"Stage = CEEC leve
         (G.zhOn() ? '<div class="zh">' + esc(w.zhTW) + '</div>' : '') +
         '<div class="ex">' + G.exHtml(w.examples[lv], w.id) + ' <button class="iconbtn" style="width:36px;height:36px;vertical-align:middle" data-act="say" data-say="' + esc(G.exPlain(w.examples[lv])) + '" aria-label="' + esc(t('common.listen')) + '">' + G.icon('speaker') + '</button></div></div>' +
         '<div class="row">' + (card > 0 ? '<button class="btn ghost" data-act="cardPrev">' + G.icon('back') + esc(t('common.back')) + '</button>' : '') +
-        '<button class="btn primary" data-act="cardNext">' + esc(card === ws.length - 1 ? t('meet.toMatch') : t('common.next')) + G.icon('arrow') + '</button></div>';
+        '<button class="btn primary' + (card === ws.length - 1 ? ' lg' : '') + '" data-act="cardNext">' + esc(card === ws.length - 1 ? t('meet.toMatch') : t('common.next')) + G.icon('arrow') + '</button></div>';
     }
     G.acts.cardNext = () => { if (card < ws.length - 1) { card++; cards(); G.say(ws[card].headword); } else { step = 1; match(); } };
     G.acts.cardPrev = () => { if (card > 0) { card--; cards(); G.say(ws[card].headword); } };
@@ -1266,7 +1345,7 @@ window.G_INLINE={"batches":{"batchSize":20,"setSize":5,"note":"Stage = CEEC leve
       stage.innerHTML = '<div class="row between wrap" style="width:100%"><h3>' + esc(t('match.title')) + '</h3><span class="hint-text" id="mc">' + esc(t('match.count', { n: mround * ROUND, m: ws.length })) + '</span></div><div class="match"><div class="col">' +
         left.map(w => '<button class="chip" data-w="' + w.id + '">' + (w.emoji || '') + ' ' + esc(w.headword) + '</button>').join('') + '</div><div class="col">' +
         right.map(w => '<div class="mean dz" data-w="' + w.id + '" role="button" tabindex="0" aria-label="' + esc(w.defEN) + '"><span>' + esc(w.defEN) + (G.zhOn() ? '<span class="zh">' + esc(w.zhTW) + '</span>' : '') + '</span><span class="slotfill"></span></div>').join('') + '</div></div>' +
-        '<div class="hint-text" id="fb" style="min-height:22px"></div>';
+        '<div class="hint-text" id="fb" style="min-height:22px"></div><div class="row" id="nx" style="justify-content:center"></div>';
       let matched = 0;
       const d = G.dnd.attach(stage, {
         chip: '.chip', zone: '.mean',
@@ -1277,7 +1356,7 @@ window.G_INLINE={"batches":{"batchSize":20,"setSize":5,"note":"Stage = CEEC leve
             fb.textContent = t('fb.great'); G.$('#mc', stage).textContent = t('match.count', { n: mround * ROUND + matched, m: ws.length });
             if (matched === chunk.length) {
               if ((mround + 1) * ROUND < ws.length) { mround++; setTimeout(match, 700); }
-              else { fb.textContent = t('match.great'); setTimeout(() => { step = 2; build(); }, 900); }
+              else { mdone = true; fb.textContent = t('match.great'); G.$('#nx', stage).innerHTML = toBuildBtn(); }
             }
           } else {
             zone.classList.add('shake'); chip.classList.add('shake'); fb.textContent = t('match.tryAnother');
@@ -1288,17 +1367,23 @@ window.G_INLINE={"batches":{"batchSize":20,"setSize":5,"note":"Stage = CEEC leve
       cleanupDnd = d.clearSel;
     }
 
+    function matchEnd() {
+      setProg(1, 3);
+      stage.innerHTML = '<div class="hint-text">' + esc(t('match.great')) + '</div><div class="row" style="justify-content:center">' + toBuildBtn() + '</div>';
+    }
+    G.acts.toBuild = () => { step = 2; build(); };
+
     function build() {
       setProg(2, 3);
       buildRound(stage, ws, {
         mode: 'build',
         onDone: () => {
           const p = G.pg(b.id, lv); p.meet[0] = 1; G.save();
-          finishCard(stage, { emoji: '🌟', title: t('meet.complete'), actions: [{ label: t('station.use'), href: '#/batch/' + b.id + '/use/pick', primary: true }, { label: t('story.finish'), href: '#/batch/' + b.id }] });
+          endLesson(stage, b, 'meet', t('meet.complete'), '🌟');
         }
       });
     }
-    G.redraw = () => { if (step === 0) cards(); else if (step === 1) match(); };
+    G.redraw = () => { if (step === 0) cards(); else if (step === 1) { if (mdone) matchEnd(); else match(); } };
     cards(); G.say(ws[0].headword);
   }
 
@@ -1361,7 +1446,7 @@ window.G_INLINE={"batches":{"batchSize":20,"setSize":5,"note":"Stage = CEEC leve
         fb.textContent = t('build.great'); if (!wrongThisWord) firstTry++;
         G.say(words[i].headword);
         const last = i === words.length - 1;
-        G.$('#nx', stage).innerHTML = '<button class="btn primary" data-act="bNext">' + esc(last ? t('common.done') : t('build.next')) + G.icon('arrow') + '</button>';
+        G.$('#nx', stage).innerHTML = '<button class="btn primary" data-act="bNext">' + esc(last ? t(o.lastLabel || 'finish.last') : t('build.next')) + G.icon('arrow') + '</button>';
       } else {
         wrongThisWord = true; fb.textContent = t('build.almost');
         slots.forEach(s => { if (s.querySelector('.chip').dataset.ch !== cur.letters[+s.dataset.k]) { s.classList.add('wrong', 'shake'); } });
@@ -1387,12 +1472,7 @@ window.G_INLINE={"batches":{"batchSize":20,"setSize":5,"note":"Stage = CEEC leve
           const p = G.pg(id, lv);
           if (act === 'pick') p.pick[0] = score; else if (act === 'maker') p.maker[0] = Math.max(1, score); else p.bee[0] = score;
           G.save();
-          const nextHref = act === 'pick' ? '#/batch/' + id + '/use/maker' : act === 'maker' ? '#/batch/' + id + '/use/bee' : '#/batch/' + id + '/story';
-          finishCard(stage, {
-            emoji: '🎯', title: act === 'maker' ? t('maker.saved') : t('pick.score', { n: score, m: total }),
-            actions: [{ label: act === 'bee' ? t('station.story') : t('common.next'), href: nextHref, primary: true }, { label: t('common.again'), act: 'replay' }, { label: t('story.finish'), href: '#/batch/' + id }]
-          });
-          G.acts.replay = () => { location.hash = '#/batch/' + id + '/use/' + act; G.render(); };
+          endLesson(stage, b, act, act === 'maker' ? t('maker.done') : t('pick.score', { n: score, m: total }), '🎯');
         };
         if (act === 'pick') pickRound(stage, b, ws, done);
         else if (act === 'maker') makerRound(stage, ws, done);
@@ -1438,7 +1518,7 @@ window.G_INLINE={"batches":{"batchSize":20,"setSize":5,"note":"Stage = CEEC leve
       });
     }
     function finish() {
-      G.$('#nx', stage).innerHTML = '<button class="btn primary" data-act="pNext">' + esc(i === order.length - 1 ? t('common.done') : t('common.next')) + G.icon('arrow') + '</button>';
+      G.$('#nx', stage).innerHTML = '<button class="btn primary" data-act="pNext">' + esc(i === order.length - 1 ? t('finish.seeScore') : t('pick.next')) + G.icon('arrow') + '</button>';
     }
     G.acts.pNext = () => { if (i < order.length - 1) { i++; draw(); } else onDone(score, order.length); };
     G.redraw = draw; draw();
@@ -1471,7 +1551,7 @@ window.G_INLINE={"batches":{"batchSize":20,"setSize":5,"note":"Stage = CEEC leve
           const text = ASSEMBLE(chosen); pv.classList.add('done'); pv.textContent = text; draw.text = text;
           G.$('#nx', stage).innerHTML = '<button class="btn ghost" data-act="say" data-say="' + esc(text) + '">' + G.icon('speaker') + esc(t('common.listen')) + '</button>' +
             '<button class="btn ghost" data-act="mSave">' + G.icon('star') + esc(t('maker.save')) + '</button>' +
-            '<button class="btn primary" data-act="mNext">' + esc(i === words.length - 1 ? t('common.done') : t('maker.next')) + G.icon('arrow') + '</button>';
+            '<button class="btn primary" data-act="mNext">' + esc(i === words.length - 1 ? t('finish.last') : t('maker.next')) + G.icon('arrow') + '</button>';
         } else {
           pv.classList.remove('done');
           pv.innerHTML = chosen.some(Boolean) ? esc(ASSEMBLE(chosen.map(x => x || '…'))) : '<span class="ph">' + esc(t('maker.placeholder')) + '</span>';
@@ -1505,7 +1585,7 @@ window.G_INLINE={"batches":{"batchSize":20,"setSize":5,"note":"Stage = CEEC leve
         if (btn.dataset.o === w.headword) {
           btn.classList.add('right'); G.$$('.opt', stage).forEach(x => { x.disabled = true; }); fb.textContent = t('bee.great');
           if (tries === 0) score++; G.say(w.headword);
-          G.$('#nx', stage).innerHTML = '<button class="btn primary" data-act="beeNext">' + esc(i === order.length - 1 ? t('common.done') : t('common.next')) + G.icon('arrow') + '</button>';
+          G.$('#nx', stage).innerHTML = '<button class="btn primary" data-act="beeNext">' + esc(i === order.length - 1 ? t('finish.seeScore') : t('build.next')) + G.icon('arrow') + '</button>';
         } else { tries++; btn.classList.add('wrong', 'shake'); fb.textContent = t('bee.tryAnother'); setTimeout(() => btn.classList.remove('shake'), 480); }
       }));
       G.say(w.headword);
@@ -1592,13 +1672,13 @@ window.G_INLINE={"batches":{"batchSize":20,"setSize":5,"note":"Stage = CEEC leve
       const fb = G.$('#fb', stage); fb.textContent = G.$$('.gap.reveal', stage).length ? t('story.showAnswer') : t('story.allCorrect');
       const full = pieces.map(x => { const m = x.match(/^\[\[(\d+)\]\]$/); return m ? gaps[m[1] - 1].form : x; }).join('');
       const star = G.hasStar(b.id, lv);
+      const e = lessonEnd(b, 'story');
       G.$('#nx', stage).innerHTML = '<button class="btn ghost" data-act="say" data-say="' + esc(full) + '">' + G.icon('speaker') + esc(t('story.readAgain')) + '</button>' +
-        '<a class="btn primary" href="#/batch/' + b.id + '">' + esc(t('story.finish')) + G.icon('arrow') + '</a>' +
-        '<button class="btn ghost" data-act="sAgain">' + G.icon('refresh') + esc(t('common.again')) + '</button>';
+        '<div class="hint-text" style="flex-basis:100%">' + esc(e.complete || e.count) + '</div>' + finishHtml(e);
       if (star) { fb.textContent += ' ⭐ ' + t('story.starEarned'); }
       G.confetti(); G.touchStreak();
+      try { G.$('#nx .btn.primary', stage).scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (err) { /* older browsers */ }
     }
-    G.acts.sAgain = () => { G.render(); };
     G.redraw = () => { if (!state.done) { const keep = G.$$('.gap.locked', stage).length === 0; if (keep) draw(); } };
     draw();
   }
@@ -1611,10 +1691,9 @@ window.G_INLINE={"batches":{"batchSize":20,"setSize":5,"note":"Stage = CEEC leve
         const stage = G.$('#stage', root), ws = b.words, lv = G.level();
         const done = (score, total) => {
           const p = G.pg(id, lv); p[act][0] = score; G.save();
-          finishCard(stage, { emoji: '🏆', title: t('pick.score', { n: score, m: total }), actions: [{ label: t('games.title'), href: '#/games', primary: true }, { label: t('common.again'), act: 'gAgain' }] });
+          finishCard(stage, { emoji: '🏆', title: t('pick.score', { n: score, m: total }), primary: { label: t('finish.games'), href: '#/games' }, what: t('games.sub'), alts: [{ label: t('finish.gameAgain'), act: 'replay' }] });
         };
-        G.acts.gAgain = () => G.render();
-        if (act === 'bee') beeRound(stage, ws, done); else buildRound(stage, ws, { mode: act, onDone: done });
+        if (act === 'bee') beeRound(stage, ws, done); else buildRound(stage, ws, { mode: act, onDone: done, lastLabel: 'finish.seeScore' });
       };
       return pg;
     });

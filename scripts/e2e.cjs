@@ -33,6 +33,15 @@ async function drag(page, from, to) {
 }
 const state = page => page.evaluate(() => JSON.parse(localStorage.getItem('genesis6000.v1')));
 const wordByZh = zh => B.words.find(w => w.zhTW === zh.trim());
+/* The end-of-activity screen: one big primary button that names the next activity, two smaller buttons, the three stations. */
+const endScreen = async page => {
+  await page.waitForSelector('.finish .btn.primary.lg');
+  return {
+    primary: (await page.textContent('.finish .btn.primary.lg')).trim(), href: await page.getAttribute('.finish .btn.primary.lg', 'href'),
+    act: await page.getAttribute('.finish .btn.primary.lg', 'data-act'), alts: (await page.$$eval('.finish .alt .btn', els => els.map(e => e.textContent.trim()))),
+    steps: await page.locator('.finish .step').count(), done: await page.locator('.finish .step.done').count(), next: await page.locator('.finish .step.next').count()
+  };
+};
 const hintText = page => page.$eval('.bighint', e => Array.from(e.childNodes).filter(n => n.nodeType === 3).map(n => n.textContent).join(''));
 
 (async () => {
@@ -88,7 +97,9 @@ const hintText = page => page.$eval('.bighint', e => Array.from(e.childNodes).fi
   });
   await test('Meet: 20 cards, matching all 20 words, spelling all 20 (with a wrong spelling corrected), lesson marked met', async () => {
     assert((await page.textContent('.hint-text')).includes('Card 1 of 20'));
-    for (let i = 0; i < 20; i++) await page.click('[data-act=cardNext]');
+    for (let i = 0; i < 19; i++) { assert.strictEqual((await page.textContent('[data-act=cardNext]')).trim(), 'Next'); await page.click('[data-act=cardNext]'); }
+    assert.strictEqual((await page.textContent('[data-act=cardNext]')).trim(), 'Next: match words to meanings', 'the last card names the next part');
+    await page.click('[data-act=cardNext]');
     await page.waitForSelector('.match');
     for (let r = 0; r < 4; r++) {
       await page.waitForFunction(n => document.querySelector('#mc') && document.querySelector('#mc').textContent.includes('Matched ' + n + ' of 20') && !document.querySelector('.mean.done'), r * 5);
@@ -103,7 +114,11 @@ const hintText = page => page.$eval('.bighint', e => Array.from(e.childNodes).fi
         else { await page.click('.match .chip[data-w="' + id + '"]:not(.ok)'); await page.click('.mean[data-w="' + id + '"]'); }
       }
     }
-    await page.waitForSelector('.slots', { timeout: 5000 });
+    await page.waitForSelector('[data-act=toBuild]', { timeout: 5000 });
+    assert.strictEqual((await page.textContent('[data-act=toBuild]')).trim(), 'Next: spell the words');
+    await page.waitForTimeout(1300); assert.strictEqual(await page.locator('.slots').count(), 0, 'Match it waits for the student to press the button');
+    await page.click('[data-zhsw]'); await page.waitForSelector('[data-act=toBuild]'); await page.click('[data-zhsw]'); await page.waitForSelector('[data-act=toBuild]'); // switching the Chinese view keeps the button
+    await page.click('[data-act=toBuild]'); await page.waitForSelector('.slots', { timeout: 3000 });
     for (let n = 0; n < 20; n++) {
       await page.waitForSelector('.slots');
       const hint = await hintText(page); const w = wordByZh(hint); assert(w, 'word for hint ' + hint);
@@ -119,10 +134,17 @@ const hintText = page => page.$eval('.bighint', e => Array.from(e.childNodes).fi
         for (const k of await page.$$eval('.slot.dz', els => els.map(e => e.dataset.k))) { const placed = await page.locator('.slot.dz[data-k="' + k + '"] .chip').count(); if (placed) await page.locator('.slot.dz[data-k="' + k + '"] .chip').click(); }
       }
       for (const ch of w.headword.split('')) { const t = page.locator('#tiles .chip[data-ch="' + ch + '"]').first(); if (await t.count()) await t.click(); }
-      await page.waitForSelector('[data-act=bNext]', { timeout: 3000 }); await page.click('[data-act=bNext]');
+      await page.waitForSelector('[data-act=bNext]', { timeout: 3000 });
+      assert.strictEqual((await page.textContent('[data-act=bNext]')).trim(), n === 19 ? 'Finish this activity' : 'Next word');
+      await page.click('[data-act=bNext]');
     }
     await page.waitForSelector('.banner');
     assert.strictEqual((await state(page)).progress.b001.beginner.meet[0], 1);
+    const e = await endScreen(page);
+    assert.strictEqual(e.primary, 'Next activity: Pick the word'); assert(e.href.endsWith('#/batch/b001/use/pick'), e.href);
+    assert.deepStrictEqual(e.alts, ['Do this activity again', 'Go to the lesson menu']);
+    assert.deepStrictEqual([e.steps, e.done, e.next], [3, 1, 1]);
+    assert((await page.textContent('.banner')).includes('1 of 5 activities done at Beginner level.'));
   });
 
   for (const lv of ['beginner', 'intermediate', 'advanced']) {
@@ -136,9 +158,13 @@ const hintText = page => page.$eval('.bighint', e => Array.from(e.childNodes).fi
         assert(w, 'which word? ' + sentence);
         if (n === 0) { const wrong = w.pick[lv][0]; await page.click('.chip[data-h="' + wrong + '"]'); await page.waitForTimeout(200); assert(!(await page.locator('.gap.right').count())); }
         if (n % 2 === 0) await drag(page, '.chip[data-h="' + w.headword + '"]', '#gap'); else await page.click('.chip[data-h="' + w.headword + '"]');
-        await page.waitForSelector('.gap.right', { timeout: 2000 }); await page.click('[data-act=pNext]');
+        await page.waitForSelector('.gap.right', { timeout: 2000 });
+        assert.strictEqual((await page.textContent('[data-act=pNext]')).trim(), n === 19 ? 'See my score' : 'Next sentence');
+        await page.click('[data-act=pNext]');
       }
       await page.waitForSelector('.banner'); const s = await state(page); assert(s.progress.b001[lv].pick[0] !== null);
+      const e = await endScreen(page); assert.strictEqual(e.primary, 'Next activity: Sentence Maker'); assert(e.href.endsWith('#/batch/b001/use/maker'));
+      assert(e.alts.includes('Do this activity again') && e.alts.includes('Go to the lesson menu'));
     });
     await test(lv + ': Sentence Maker builds correct sentences from tiles for all 20 words', async () => {
       await go('#/batch/b001/use/maker', '.maker');
@@ -149,9 +175,11 @@ const hintText = page => page.$eval('.bighint', e => Array.from(e.childNodes).fi
         await page.waitForSelector('.preview.done');
         assert.strictEqual((await page.textContent('.preview')).trim(), ASSEMBLE(rows.map(r => r.tiles[0])));
         if (n === 0) { await page.click('[data-act=mSave]'); }
+        assert.strictEqual((await page.textContent('[data-act=mNext]')).trim(), n === 19 ? 'Finish this activity' : 'Next word');
         await page.click('[data-act=mNext]');
       }
       await page.waitForSelector('.banner'); assert((await state(page)).sentences.length >= 1);
+      const e = await endScreen(page); assert.strictEqual(e.primary, 'Next activity: Spelling Bee'); assert(e.href.endsWith('#/batch/b001/use/bee'));
     });
     await test(lv + ': Spelling Bee for all 20 words accepts the right spelling and rejects a look-alike', async () => {
       await go('#/batch/b001/use/bee', '.opts');
@@ -159,9 +187,12 @@ const hintText = page => page.$eval('.bighint', e => Array.from(e.childNodes).fi
       for (let n = 0; n < 20; n++) {
         const opts = await page.$$eval('.opt', els => els.map(e => e.dataset.o)); const right = opts.find(o => heads.includes(o)); assert(right);
         if (n === 0) { const wrong = opts.find(o => o !== right); await page.click('.opt[data-o="' + wrong + '"]'); await page.waitForSelector('.opt.wrong'); }
-        await page.click('.opt[data-o="' + right + '"]'); await page.waitForSelector('[data-act=beeNext]'); await page.click('[data-act=beeNext]');
+        await page.click('.opt[data-o="' + right + '"]'); await page.waitForSelector('[data-act=beeNext]');
+        assert.strictEqual((await page.textContent('[data-act=beeNext]')).trim(), n === 19 ? 'See my score' : 'Next word');
+        await page.click('[data-act=beeNext]');
       }
       await page.waitForSelector('.banner');
+      const e = await endScreen(page); assert.strictEqual(e.primary, 'Next activity: Article'); assert(e.href.endsWith('#/batch/b001/story'));
     });
     await test(lv + ': one article with 20 gaps by drag and tap, wrong answers handled, star earned', async () => {
       await go('#/batch/b001/story', '.story');
@@ -184,8 +215,46 @@ const hintText = page => page.$eval('.bighint', e => Array.from(e.childNodes).fi
       await page.click('[data-act=sCheck]'); await page.waitForSelector('.gap.right >> nth=19', { timeout: 3000 });
       assert.strictEqual(await page.locator('.gap.right').count(), 20);
       const p = (await state(page)).progress.b001[lv]; assert.strictEqual(p.story[0], 1, 'article done = star');
+      const e = await endScreen(page);
+      if (lv === 'beginner') { // all done: the lesson is complete and the big button offers the next level
+        assert.strictEqual(e.primary, 'Do Lesson 1 at Intermediate level'); assert.strictEqual(e.act, 'levelUp'); assert.deepStrictEqual([e.steps, e.done, e.next], [3, 3, 0]);
+        assert((await page.textContent('.finish')).includes('The same 20 words'));
+      } else { // earlier activities at this level are still open: the button wraps round to the first one
+        assert.strictEqual(e.primary, 'Next activity: Meet the words'); assert(e.href.endsWith('#/batch/b001/meet')); assert.deepStrictEqual([e.steps, e.done, e.next], [3, 2, 1]);
+      }
+      assert(e.alts.includes('Do this activity again') && e.alts.includes('Go to the lesson menu'));
+    });
+    if (lv === 'beginner') await test('the big button after a finished lesson starts the next level', async () => {
+      await page.click('.finish [data-act=levelUp]'); await page.waitForSelector('.wcard');
+      assert.strictEqual((await state(page)).prefs.level, 'intermediate'); assert(page.url().endsWith('#/batch/b001/meet'));
+      assert((await page.textContent('.player')).includes('Intermediate'));
     });
   }
+
+  console.log('End of each activity');
+  await test('at Advanced, finishing the last open activity completes the lesson and the big button goes to Today', async () => {
+    await setLevel('advanced');
+    await page.evaluate(() => { const p = G.pg('b001', 'advanced'); p.meet[0] = 1; G.save(); });
+    await go('#/batch/b001/use/bee', '.opts');
+    const heads = B.words.map(w => w.headword);
+    for (let n = 0; n < 20; n++) { const opts = await page.$$eval('.opt', els => els.map(e => e.dataset.o)); await page.click('.opt[data-o="' + opts.find(o => heads.includes(o)) + '"]'); await page.waitForSelector('[data-act=beeNext]'); await page.click('[data-act=beeNext]'); }
+    const e = await endScreen(page);
+    assert.strictEqual(e.primary, 'Back to Today'); assert(e.href.endsWith('#/today')); assert.deepStrictEqual([e.done, e.next], [3, 0]);
+    assert((await page.textContent('.banner')).includes('Lesson 1 complete at Advanced level!'));
+    await page.click('.finish [data-act=replay]'); await page.waitForSelector('.opts'); // do this activity again
+    assert((await page.textContent('.hint-text')).includes('1 / 20'));
+  });
+  await test('the end screen fits a 390px phone and its big button is fully on screen', async () => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await go('#/batch/b001/story', '.story');
+    for (let k = 0; k < 20; k++) { await page.click('#bank .chip[data-k="' + k + '"]'); await page.click('.gap[data-g="' + k + '"]'); }
+    await page.click('[data-act=sCheck]'); await page.waitForSelector('.finish .btn.primary.lg', { timeout: 4000 });
+    const r = await page.evaluate(() => { const b = document.querySelector('.finish .btn.primary.lg').getBoundingClientRect(); return { l: b.left, r: b.right, w: innerWidth, over: document.documentElement.scrollWidth - innerWidth }; });
+    assert(r.l >= 0 && r.r <= r.w, 'button inside the screen: ' + JSON.stringify(r)); assert(r.over <= 1, 'overflow ' + r.over);
+    const steps = await page.$$eval('.finish .step', els => els.map(e => ({ l: e.getBoundingClientRect().left, r: e.getBoundingClientRect().right })));
+    assert(steps.every(x => x.l >= 0 && x.r <= 390), 'all three steps fit across the phone');
+    await page.setViewportSize({ width: 1280, height: 900 });
+  });
 
   console.log('Games and the other stations');
   await test('Missing Letters (advanced) plays through all 20 words', async () => {
@@ -195,9 +264,13 @@ const hintText = page => page.$eval('.bighint', e => Array.from(e.childNodes).fi
       const hint = await hintText(page); const w = wordByZh(hint); assert(w, 'word for ' + hint);
       const ks = await page.$$eval('.slot.dz', els => els.map(e => +e.dataset.k));
       for (const k of ks) await page.locator('#tiles .chip[data-ch="' + w.headword[k] + '"]').first().click();
-      await page.waitForSelector('[data-act=bNext]'); await page.click('[data-act=bNext]');
+      await page.waitForSelector('[data-act=bNext]');
+      assert.strictEqual((await page.textContent('[data-act=bNext]')).trim(), n === 19 ? 'See my score' : 'Next word');
+      await page.click('[data-act=bNext]');
     }
     await page.waitForSelector('.banner');
+    const e = await endScreen(page); assert.strictEqual(e.primary, 'Back to Games'); assert(e.href.endsWith('#/games')); assert.deepStrictEqual(e.alts, ['Play this game again']); assert.strictEqual(e.steps, 0);
+    await page.click('.finish [data-act=replay]'); await page.waitForSelector('.slots'); // play again starts the game over
   });
   await test('Build it from the Games tab (intermediate decoys) plays through all 20 words', async () => {
     await setLevel('intermediate'); await go('#/play/build/b001', '.slots');

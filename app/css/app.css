@@ -269,6 +269,18 @@ h3{font-size:19px;font-weight:700;letter-spacing:-.01em}
 /* finish banner, toast, popover, sheet */
 .banner{padding:22px 26px;border-radius:26px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;justify-content:center;text-align:center;background:linear-gradient(135deg,rgba(65,224,138,.35),rgba(65,224,138,.08))}
 .banner .big{font-size:42px}.banner b{font-size:22px}
+/* end of an activity: where you are, then one big button that says what comes next */
+.finish{display:flex;flex-direction:column;align-items:center;gap:16px;width:100%}
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;width:100%;max-width:420px;margin:0;padding:0;list-style:none}
+.step{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0;font-size:14px;font-weight:700;line-height:1.25;color:var(--ink2);overflow-wrap:anywhere}
+.step small{display:block;font-size:12px;font-weight:600;color:var(--ink3)}
+.step i{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;font-style:normal;font-size:17px;font-weight:800;color:var(--ink);background:rgba(var(--tint),.12);border:2px solid rgba(var(--tint),.32)}
+.step.done i{background:var(--ok);border-color:var(--ok);color:#06210f}
+.step.next{color:var(--ink)}
+.step.next i{border-color:rgb(var(--lv-rgb));box-shadow:0 0 0 4px rgba(var(--lv-rgb),.28);background:rgba(var(--lv-rgb),.22)}
+.btn.lg{min-height:60px;padding:0 32px;font-size:19px;border-radius:32px;white-space:normal;text-align:center;line-height:1.25;width:100%;max-width:460px}
+.finish .what{margin-top:-6px;max-width:460px}
+.finish .alt{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
 .toasts{position:fixed;left:0;right:0;padding-inline:max(16px,env(safe-area-inset-left,0px));bottom:calc(96px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;align-items:center;gap:8px;z-index:900;pointer-events:none}
 @media (min-width:901px){.toasts{bottom:28px}}
 .toast{padding:12px 22px;border-radius:999px;font-weight:700;font-size:15px;background-color:var(--float);animation:rise .3s both;pointer-events:auto}

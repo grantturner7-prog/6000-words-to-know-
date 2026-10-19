@@ -118,6 +118,10 @@ class CheckBatch(unittest.TestCase):
         def m(d): word(d, "tea")["set"] = 4
         self.assertCaught(run(m), "differs from the plan")
 
+    def test_story_title_shows_a_gap_word(self):
+        def m(d): d["stories"]["beginner"]["parts"][0]["title"] = "The Chair by the Fire"
+        self.assertCaught(run(m), "title shows a word")
+
     def test_banned_word(self):
         def m(d): word(d, "chair")["examples"]["advanced"] = "When the bell rang, the stupid {chair} fell over and Tom ran to the door."
         self.assertCaught(run(m), "banned word")

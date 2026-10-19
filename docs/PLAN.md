@@ -1,6 +1,6 @@
 # Genesis 6,000 English Words to Know: project plan
 
-Drafted 2026-10-19. Status (2026-10-19): the word list arrived as pasted text, and **Phases 0 to 4 are built and audited** (`docs/audit/`). Batch 1 is playable at all three levels. Next: owner review, a teacher's read of Batch 1, and a trial with a few students, then Phase 5.
+Drafted 2026-10-19. Status (2026-10-19): the word list arrived as pasted text, and **Phases 0 to 4 are built and audited** (`docs/audit/`). Batches 1 and 2 are playable at all three levels. Next: owner review, a teacher's read of both batches, a decision on voices, and a trial with a few students, then Phase 5.
 
 ## 1. The product in one paragraph
 A web app for phone, iPad and desktop (it must work inside LINE's browser) that teaches 6,000 English words to second-language students in Taiwan, roughly grades 6 to 9 and up. Words arrive in **batches of 20**. Each batch is learned at three levels, **Beginner, Intermediate and Advanced**, with tap-and-drag activities only: no typing and no AI marking. Tapping any word shows its meaning in English and Traditional Chinese, and one switch turns the Chinese on or off. The look is the same liquid-glass design as the IELTS app, in light and dark. Sold as *Genesis 6,000 English Words to Know* for NT$399 (about US$10), one purchase.
@@ -199,6 +199,8 @@ The vocabulary band for gate 4 uses the CEEC list itself, so no outside frequenc
 
 **Status (2026-10-19):** Built and checked by machine and by two independent AI reviewers. **Still open from this phase's audit list:** teacher review and a trial with 3 to 5 students (`docs/audit/phase-4.md`). Games Build it, Missing Letters and Spelling Bee are done; the arcade games are Phase 5.
 
+**Batch 2 (2026-10-19):** written and reviewed with the same gates (`docs/audit/batch-02.md`). It took a first draft that the checker rejected 15 times, then two rounds of AI language review (65 findings, then 26) and three blind solves. Plan on that much review effort for every batch, plus a teacher's read, when sizing the remaining 296.
+
 **Phase 5: Games, Quick Review, Progress.** Deliverables: the three arcade games, the five-box Quick Review, stars, streak, My Sentences, a placement check. Audit: Quick Review schedule tested with simulated days; each game played end to end on a phone.
 
 **Phase 6: Content at scale.** Deliverables: Stage 1 (Batches 1 to 50), then each further Stage. Audit per Stage: checker clean, sample review done, blind-solve sample passed.
@@ -215,7 +217,7 @@ Answered by the build: the PDF is the public CEEC list (question 1 of the first 
 3. **Default pace:** one batch a week with a two-a-week option? *Recommended: yes.*
 4. **Level order:** free choice with a nudge to climb, or locks? *Built as free choice.*
 5. **Launch scope:** all 298 batches on day one, or Stage by Stage? *Recommended: decide once a teacher has timed the review of Batch 1.*
-6. **Audio:** the prototype uses the browser's voice. Recorded or text-to-speech files reviewed by the teacher (as chosen for TOEIC)? *Recommended: yes, before launch.*
+6. **Audio:** the app speaks with the voices installed on each device. They are ranked so the most natural one is used, and Settings lets a student pick another, but the owner found the result robotic on their device and quality will vary. Recorded or neural text-to-speech files for every word and example, reviewed by the teacher, would sound the same on every device. *Recommended: yes, before launch. Choose one:* (a) the owner or a teacher records the clips; (b) a commercial text-to-speech service with a licence for a paid product, which needs an account and key from the owner; (c) keep device voices only. The app already plays a clip when one is listed in `audio/index.json` and falls back to the device voice otherwise (`audio/README.md`), so clips can be added without rebuilding. From the two written batches, the full course is about 25,000 clips and 1.8 million characters (`python3 scripts/audio_manifest.py`); at typical neural-voice prices of a few to a few tens of US dollars per million characters, that is a small cost, to be confirmed with the chosen provider.
 7. **Engine:** build the learning app and content in this repo, then connect it to the shared accounts and payments engine as its own product (the TOEIC pattern)? *Recommended: yes.*
 8. **Reviewer:** who is the teacher who signs off each batch, and what share of later batches do they read in full?
 

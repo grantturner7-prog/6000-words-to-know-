@@ -36,7 +36,7 @@
   function defaults() {
     return {
       v: 1, profile: null,
-      prefs: { theme: 'auto', lang: ((navigator.language || '').toLowerCase().indexOf('zh') === 0 ? 'zh' : 'en'), zh: true, sound: true, motion: true, level: 'beginner', stage: 1 },
+      prefs: { theme: 'auto', lang: ((navigator.language || '').toLowerCase().indexOf('zh') === 0 ? 'zh' : 'en'), zh: true, sound: true, motion: true, level: 'beginner', stage: 1, batch: 'b001', voice: '', pace: 'normal' },
       progress: {}, sentences: [], met: {}, streak: { last: null, count: 0 }
     };
   }
@@ -86,24 +86,61 @@
     (mq.addEventListener ? mq.addEventListener.bind(mq, 'change') : mq.addListener.bind(mq))(() => G.applyTheme());
   }
 
-  /* ---------- speech ---------- */
-  let voice = null;
-  function pickVoice() {
-    if (!('speechSynthesis' in window)) return;
-    const vs = speechSynthesis.getVoices();
-    voice = vs.find(v => /en[-_]US/i.test(v.lang) && /(female|samantha|google us|aria|jenny|zira)/i.test(v.name)) ||
-      vs.find(v => /en[-_]US/i.test(v.lang)) || vs.find(v => /^en/i.test(v.lang)) || null;
-  }
-  if ('speechSynthesis' in window) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
-  G.say = function (text, rate, explicit) {
-    if (!G.state.prefs.sound) { if (explicit) G.toast(G.t('sound.off')); return; }
+  /* ---------- speech ----------
+     The voices come from the student's device. We rank them so the most natural one is used
+     (neural / "Natural" / Premium / Enhanced voices first, novelty and old desktop voices last),
+     and Settings lets a student pick another and hear it. */
+  const NOVELTY = /\b(albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|fred|good news|hysterical|jester|junior|kathy|organ|princess|ralph|superstar|trinoids|whisper|wobble|zarvox)\b|espeak|desktop|compact/i;
+  const WELL_KNOWN = /\b(samantha|ava|allison|nicky|zoe|evan|aaron|jenny|aria|guy|michelle|emma|ana|brian|ryan|sonia|libby|natasha|clara|serena|daniel|karen|moira)\b/i;
+  G.scoreVoice = function (v) {
+    const lang = String(v.lang || '').replace('_', '-'), name = String(v.name || '');
+    let s;
+    if (/^en-US/i.test(lang)) s = 30; else if (/^en-(GB|AU|CA|IE|IN|ZA|NZ)/i.test(lang)) s = 14; else if (/^en/i.test(lang)) s = 8; else return null;
+    if (/natural|neural|online/i.test(name)) s += 100;
+    if (/premium|enhanced|siri/i.test(name)) s += 80;
+    if (/google/i.test(name)) s += 45;
+    if (WELL_KNOWN.test(name)) s += 20;
+    if (v.localService === false) s += 10;
+    if (NOVELTY.test(name)) s -= 200;
+    return s;
+  };
+  G.rankVoices = list => list.map(v => [G.scoreVoice(v), v]).filter(x => x[0] !== null).sort((a, b) => b[0] - a[0]).map(x => x[1]);
+  let voices = [];
+  function loadVoices() { voices = ('speechSynthesis' in window) ? G.rankVoices(speechSynthesis.getVoices()) : []; }
+  G.voices = () => voices;
+  G.voice = function () {
+    const want = G.state && G.state.prefs && G.state.prefs.voice;
+    return (want && voices.find(v => v.voiceURI === want)) || voices[0] || null;
+  };
+  if ('speechSynthesis' in window) { loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
+  /* Recorded or neural audio: audio/index.json maps a spoken text (lower case) to a clip file.
+     A clip is played when one exists; otherwise the device voice speaks. See audio/README.md. */
+  G.clips = {};
+  const clipKey = t => String(t).replace(/[{}[\]]/g, '').replace(/_+/g, ' ').replace(/\s+/g, ' ').trim().toLowerCase();
+  const clipUrl = c => /^(https?:|data:|blob:)/.test(c) ? c : (window.G_INLINE ? 'audio/' : '../audio/') + c;
+  let clipAudio = null;
+  function speakWithVoice(text) {
     if (!('speechSynthesis' in window)) return;
     try {
       speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(String(text).replace(/[{}[\]]/g, '').replace(/_+/g, ' '));
-      u.lang = 'en-US'; u.rate = rate || 0.88; if (voice) u.voice = voice;
+      const u = new SpeechSynthesisUtterance(String(text).replace(/[{}[\]]/g, '').replace(/_+/g, ' ')), v = G.voice();
+      u.lang = v ? v.lang : 'en-US'; u.rate = G.state.prefs.pace === 'slow' ? 0.72 : 0.95; if (v) u.voice = v;
       speechSynthesis.speak(u);
     } catch (e) { /* ignore */ }
+  }
+  G.say = function (text, explicit) {
+    if (!G.state.prefs.sound) { if (explicit) G.toast(G.t('sound.off')); return; }
+    const clip = G.clips[clipKey(text)];
+    if (clip && typeof Audio !== 'undefined') {
+      try {
+        if (clipAudio) clipAudio.pause();
+        if ('speechSynthesis' in window) speechSynthesis.cancel();
+        clipAudio = new Audio(clipUrl(clip)); clipAudio.playbackRate = G.state.prefs.pace === 'slow' ? 0.8 : 1;
+        const p = clipAudio.play(); if (p && p.catch) p.catch(() => speakWithVoice(text));
+        return;
+      } catch (e) { /* fall back to the device voice */ }
+    }
+    speakWithVoice(text);
   };
 
   /* ---------- data ---------- */
@@ -117,9 +154,13 @@
     if (G.data.batches[id]) return Promise.resolve(G.data.batches[id]);
     return G.loadJSON(id, '../content/batches/' + id + '.json').then(b => { G.data.batches[id] = b; return b; });
   };
-  G.boot = () => G.loadJSON('batches').then(p => { G.data.plan = p; });
-  G.isBuilt = id => !!(window.G_INLINE && window.G_INLINE[id]) || G.builtIds.indexOf(id) >= 0;
-  G.builtIds = ['b001'];
+  G.boot = () => G.loadJSON('batches').then(p => { G.data.plan = p; return G.loadJSON('audio', '../audio/index.json').then(c => { G.clips = c || {}; }, () => {}); });
+  G.isBuilt = id => G.builtList().indexOf(id) >= 0;
+  G.builtIds = ['b001', 'b002'];   /* batches written and playable; the single-file build lists whatever it inlines */
+  G.builtList = () => (window.G_INLINE ? Object.keys(window.G_INLINE).filter(k => /^b\d+$/.test(k)).sort() : G.builtIds);
+  /* the batch the student is working on: their choice if it is playable, else the first one */
+  G.curBatch = () => { const l = G.builtList(), b = G.state.prefs.batch; return l.indexOf(b) >= 0 ? b : l[0]; };
+  G.batchNo = id => +String(id).slice(1);
   G.word = function (id) {
     for (const b of Object.values(G.data.batches)) { const w = b.words.find(x => x.id === id); if (w) return w; }
     return null;
@@ -180,7 +221,7 @@
   /* ---------- global actions and events ---------- */
   G.acts = {};
   G.acts.peekClose = () => G.peekClose();
-  G.acts.say = el => G.say(el.getAttribute('data-say'), 0.88, true);
+  G.acts.say = el => G.say(el.getAttribute('data-say'), true);
   G.acts.go = el => { location.hash = el.getAttribute('data-go'); };
   document.addEventListener('click', function (e) {
     const peek = e.target.closest('[data-peek]');
@@ -188,6 +229,10 @@
     const act = e.target.closest('[data-act]');
     if (act && G.acts[act.getAttribute('data-act')]) { G.acts[act.getAttribute('data-act')](act, e); return; }
     if (!e.target.closest('#pop')) G.peekClose();
+  });
+  document.addEventListener('change', function (e) {
+    const el = e.target.closest && e.target.closest('[data-change]');
+    if (el && G.acts[el.getAttribute('data-change')]) G.acts[el.getAttribute('data-change')](el);
   });
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') G.peekClose();
@@ -245,6 +290,15 @@
 
   G.sw = (act, on, label, extra) => '<button class="switch" role="switch" aria-checked="' + (on ? 'true' : 'false') + '" data-act="' + act + '"' + (extra || '') + '><span class="track"></span><span>' + G.esc(label) + '</span></button>';
 
+  G.voiceRows = function () {
+    const p = G.state.prefs, list = G.voices(), cur = G.voice();
+    const opts = '<option value="">' + G.esc(G.t('settings.voiceAuto')) + '</option>' + list.map(v => '<option value="' + G.esc(v.voiceURI) + '"' + (p.voice === v.voiceURI ? ' selected' : '') + '>' + G.esc(v.name.replace(/^Microsoft /, '').replace(/ - English.*$/, '')) + '</option>').join('');
+    return '<div class="setrow" style="flex-wrap:wrap"><span>' + G.esc(G.t('settings.voice')) + '</span>' + (list.length
+      ? '<div class="row" style="min-width:0;flex:1 1 100%"><select id="voiceSel" class="sel grow" data-change="setVoice" aria-label="' + G.esc(G.t('settings.voice')) + '">' + opts + '</select><button class="btn sm" data-act="tryVoice">' + G.esc(G.t('common.listen')) + '</button></div>'
+      : '<span class="hint-text">' + G.esc(G.t('settings.voiceNone')) + '</span>') + '</div>' +
+      '<div class="setrow"><span>' + G.esc(G.t('settings.pace')) + '</span><div class="seg glass" role="group">' + [['normal', G.t('settings.paceNormal')], ['slow', G.t('settings.paceSlow')]].map(([v, l]) => '<button class="' + (p.pace === v ? 'on' : '') + '" data-act="setPace" data-v="' + v + '">' + G.esc(l) + '</button>').join('') + '</div></div>' +
+      '<p class="hint-text" style="margin:-4px 0 10px">' + G.esc(G.t('settings.voiceHint')) + '</p>';
+  };
   G.settingsHtml = function () {
     const p = G.state.prefs;
     const seg = (act, opts, cur) => '<div class="seg glass" role="group">' + opts.map(([v, label]) => '<button class="' + (cur === v ? 'on' : '') + '" data-act="' + act + '" data-v="' + v + '">' + G.esc(label) + '</button>').join('') + '</div>';
@@ -253,6 +307,7 @@
       '<div class="setrow"><span>' + G.esc(G.t('settings.lang')) + '</span>' + seg('setLang', [['en', 'English'], ['zh', '中文']], p.lang) + '</div>' +
       '<div class="setrow"><span>' + G.esc(G.t('settings.zh')) + '</span>' + G.sw('toggleZh', p.zh, p.zh ? G.t('common.on') : G.t('common.off')) + '</div>' +
       '<div class="setrow"><span>' + G.esc(G.t('settings.sound')) + '</span>' + G.sw('toggleSound', p.sound, p.sound ? G.t('common.on') : G.t('common.off')) + '</div>' +
+      G.voiceRows() +
       '<div class="setrow"><span>' + G.esc(G.t('settings.motion')) + '</span>' + G.sw('toggleMotion', p.motion, p.motion ? G.t('common.on') : G.t('common.off')) + '</div>' +
       '<div class="setrow"><span>' + G.esc(G.t('settings.name')) + '</span><div class="row"><input id="nameEdit" value="' + G.esc(G.state.profile ? G.state.profile.name : '') + '" maxlength="24" style="padding:10px 14px;border-radius:16px;background:rgba(var(--tint),.12);border:1px solid rgba(var(--tint),.3);width:150px;outline:none"><button class="btn sm" data-act="saveName">' + G.esc(G.t('settings.saveName')) + '</button></div></div>' +
       '<div class="row" style="margin-top:16px;justify-content:flex-end"><button class="btn primary" data-act="closeSettings">' + G.esc(G.t('common.done')) + '</button></div></dialog>';
@@ -269,6 +324,9 @@
     G.$$('[data-zhsw]').forEach(b => b.setAttribute('aria-checked', G.zhOn() ? 'true' : 'false'));
     if (G.redraw) G.redraw(); else G.render();
   };
+  G.acts.setVoice = el => { G.state.prefs.voice = el.value; G.save(); G.say(G.t('voice.sample'), true); };
+  G.acts.tryVoice = () => G.say(G.t('voice.sample'), true);
+  G.acts.setPace = el => { G.state.prefs.pace = el.getAttribute('data-v'); G.save(); reopenSettings(); setTimeout(() => G.say(G.t('voice.sample'), true), 120); };
   G.acts.toggleSound = () => { G.state.prefs.sound = !G.state.prefs.sound; G.save(); reopenSettings(); };
   G.acts.toggleMotion = () => { G.state.prefs.motion = !G.state.prefs.motion; G.save(); G.applyTheme(); reopenSettings(); };
   G.acts.saveName = () => { const v = (document.getElementById('nameEdit').value || '').trim(); if (v) { G.state.profile.name = v.slice(0, 24); G.save(); reopenSettings(); } };

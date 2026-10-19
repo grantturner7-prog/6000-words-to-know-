@@ -351,6 +351,15 @@ def check_batch(path, show_frames=False):
             for t in tokens(part.get("title", "")):
                 if t in BANNED:
                     rep.error(where, f"banned word {t!r}")
+            # a title is shown above the gaps, so it must not spell out one of the answers
+            part_forms = set()
+            for g in gaps:
+                wd = next((x for x in words if x.get("id") == g.get("w")), None)
+                if wd:
+                    part_forms |= {norm(f) for f in wd["forms"]}
+            leaked = sorted(set(tokens(part.get("title", ""))) & part_forms)
+            if leaked:
+                rep.error(where, f"the title shows a word that is a gap in this part: {leaked}")
         if sorted(used) != sorted(ids):
             missing = sorted(set(ids) - set(used))
             extra = [u for u in set(used) if used.count(u) > 1]

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* End-to-end test: plays Batch 1 in a real browser, at all three levels.
+/* End-to-end test: plays Batch 1 in a real browser at all three levels, then Batch 2 at two levels.
    Run:  NODE_PATH=$(npm root -g) node scripts/e2e.cjs          (the app, served from this folder)
    or: DEMO=1 NODE_PATH=$(npm root -g) node scripts/e2e.cjs     (the single-file demo, opened straight from disk)
    It starts its own static server, so nothing else needs to be running.
@@ -9,6 +9,7 @@ const { chromium } = require('playwright');
 
 const ROOT = path.resolve(__dirname, '..');
 const B = JSON.parse(fs.readFileSync(path.join(ROOT, 'content/batches/b001.json'), 'utf8'));
+const B2 = JSON.parse(fs.readFileSync(path.join(ROOT, 'content/batches/b002.json'), 'utf8'));
 const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json' };
 const ASSEMBLE = tiles => { let s = tiles.join(' ').trim().replace(/\s+([,.!?])/g, '$1'); if (s && s[0] === s[0].toLowerCase()) s = s[0].toUpperCase() + s.slice(1); if (s && !/[.!?]$/.test(s)) s += '.'; return s; };
 
@@ -67,9 +68,9 @@ const hintText = page => page.$eval('.bighint', e => Array.from(e.childNodes).fi
     await page.waitForFunction(() => document.querySelector('.nav') && document.querySelector('.nav').textContent.includes('今天')); await page.waitForSelector('dialog[open]');
     await page.click('[data-act=setLang][data-v=en]'); await page.waitForFunction(() => document.querySelector('.nav').textContent.includes('Today')); await page.waitForSelector('dialog[open]'); await page.click('[data-act=closeSettings]');
   });
-  await test('Batches shows Batch 1 open and the rest coming soon', async () => {
+  await test('Batches shows Batches 1 and 2 open and the rest coming soon', async () => {
     await go('#/batches', '.bgrid');
-    assert.strictEqual(await page.locator('.bcard.open').count(), 1);
+    assert.strictEqual(await page.locator('.bcard.open').count(), 2);
     assert((await page.locator('.bcard.locked').count()) >= 40);
   });
 
@@ -208,11 +209,110 @@ const hintText = page => page.$eval('.bighint', e => Array.from(e.childNodes).fi
     const s = await state(page); assert.deepStrictEqual(s.progress, {}); assert.strictEqual(s.sentences.length, 0);
   });
 
+  console.log('Batch 2');
+  await test('Today, Games and Progress follow the batch chosen with the chips', async () => {
+    await go('#/today', '.ring'); assert.strictEqual(await page.locator('[data-act=setBatch]').count(), 2);
+    assert((await page.textContent('section.tint h3')).includes('Batch 1'));
+    await page.click('[data-act=setBatch][data-v=b002]'); await page.waitForFunction(() => document.querySelector('section.tint h3').textContent.includes('Batch 2'));
+    assert((await page.getAttribute('[data-act=go]', 'data-go')).startsWith('#/batch/b002'));
+    await go('#/games', '.station'); assert((await page.textContent('body')).includes('Batch 2'));
+    assert((await page.getAttribute('.station a.btn', 'href')).includes('/b002/'));
+    await go('#/progress', '.stat'); assert.strictEqual(await page.locator('h2:text-is("Batch 2")').count(), 1);
+    await go('#/batches', '.bgrid'); await page.click('.bcard.open >> nth=1'); await page.waitForSelector('.station');
+    assert((await page.textContent('h1')).includes('Batch 2')); assert.strictEqual(await page.locator('.chip[data-peek]').count(), 20);
+  });
+  for (const lv of ['beginner', 'advanced']) {
+    await test('Batch 2 ' + lv + ': Pick the word, Sentence Maker and both stories', async () => {
+      await setLevel(lv); await go('#/batch/b002/use/pick/1', '.sentence');
+      for (let n = 0; n < 10; n++) {
+        const sentence = (await page.textContent('.sentence')).trim();
+        const w = B2.words.find(x => { const m = x.examples[lv].match(/^(.*)\{([^{}]+)\}(.*)$/); return (m[1] + '?' + m[3]).trim() === sentence; });
+        assert(w, 'which word? ' + sentence);
+        await page.click('.chip[data-h="' + w.headword + '"]'); await page.waitForSelector('.gap.right', { timeout: 2000 }); await page.click('[data-act=pNext]');
+      }
+      await page.waitForSelector('.banner');
+      await go('#/batch/b002/use/maker/1', '.maker');
+      for (let n = 0; n < 10; n++) {
+        const id = await page.getAttribute('.chip[data-peek]', 'data-peek'); const w = B2.words.find(x => x.id === id); assert(w, 'Batch 2 word ' + id);
+        const rows = w.frames[lv].rows;
+        for (let r = 0; r < rows.length; r++) await page.click('.mt[data-r="' + r + '"][data-t="0"]');
+        await page.waitForSelector('.preview.done');
+        assert.strictEqual((await page.textContent('.preview')).trim(), ASSEMBLE(rows.map(r => r.tiles[0])));
+        await page.click('[data-act=mNext]');
+      }
+      await page.waitForSelector('.banner');
+      for (const part of [1, 2]) {
+        await go('#/batch/b002/story/' + part, '.story');
+        const gaps = B2.stories[lv].parts[part - 1].gaps;
+        for (let k = 0; k < gaps.length; k++) { await page.click('#bank .chip[data-k="' + k + '"]'); await page.click('.gap[data-g="' + k + '"]'); }
+        await page.click('[data-act=sCheck]'); await page.waitForSelector('.gap.right >> nth=9', { timeout: 3000 });
+        assert.strictEqual(await page.locator('.gap.right').count(), 10);
+      }
+      const p = (await state(page)).progress.b002[lv]; assert(p.story[0] && p.story[1], 'both parts done = star'); assert(p.pick[0] !== null);
+    });
+  }
+  await test('Batch 2 words open in Word Peek with English and Chinese', async () => {
+    await go('#/batch/b002', '.station'); await page.click('.chip[data-peek="w3452"]');
+    await page.waitForSelector('#pop:not([hidden])'); const t = await page.textContent('#pop');
+    assert(t.includes('mountain') && t.includes('山') && t.includes('A very high hill')); await page.keyboard.press('Escape');
+  });
+
+  console.log('Voices');
+  const FAKE = [
+    { name: 'Fred', lang: 'en-US', localService: true, voiceURI: 'fred' },
+    { name: 'Microsoft Zira Desktop - English (United States)', lang: 'en-US', localService: true, voiceURI: 'zira' },
+    { name: 'Samantha', lang: 'en-US', localService: true, voiceURI: 'sam' },
+    { name: 'Google US English', lang: 'en-US', localService: false, voiceURI: 'goog' },
+    { name: 'Microsoft Aria Online (Natural) - English (United States)', lang: 'en-US', localService: false, voiceURI: 'aria' },
+    { name: 'Ava (Premium)', lang: 'en-US', localService: true, voiceURI: 'ava' },
+    { name: 'Amelie', lang: 'fr-CA', localService: true, voiceURI: 'fr' }];
+  await test('voices are ranked: natural and premium first, novelty and old desktop voices last, other languages left out', async () => {
+    await go('#/today', '.ring');
+    const order = await page.evaluate(v => G.rankVoices(v).map(x => x.voiceURI), FAKE);
+    assert.deepStrictEqual(order, ['aria', 'ava', 'goog', 'sam', 'fred', 'zira']);
+  });
+  await test('Settings lists the voices, a student picks one and hears it, and the speed setting changes the pace', async () => {
+    await page.evaluate(v => {
+      window.__spoken = []; window.SpeechSynthesisUtterance = function (t) { this.text = t; };
+      speechSynthesis.cancel = () => {}; speechSynthesis.speak = u => window.__spoken.push({ text: u.text, voice: u.voice && u.voice.voiceURI, rate: u.rate });
+      speechSynthesis.getVoices = () => v; speechSynthesis.onvoiceschanged(); G.render();
+    }, FAKE);
+    assert.strictEqual(await page.evaluate(() => G.voice().voiceURI), 'aria');
+    await page.locator('[data-act=openSettings]:visible').first().click(); await page.waitForSelector('dialog[open] #voiceSel');
+    assert.strictEqual(await page.locator('#voiceSel option').count(), 7);
+    assert((await page.locator('#voiceSel option').nth(1).textContent()).includes('Aria Online (Natural)'));
+    await page.selectOption('#voiceSel', 'ava');
+    let spoken = await page.evaluate(() => window.__spoken); assert.strictEqual(spoken[spoken.length - 1].voice, 'ava'); assert(spoken[spoken.length - 1].text.includes('learn some English words'));
+    assert.strictEqual((await state(page)).prefs.voice, 'ava');
+    await page.click('[data-act=tryVoice]'); spoken = await page.evaluate(() => window.__spoken); assert.strictEqual(spoken[spoken.length - 1].voice, 'ava');
+    const normal = spoken[spoken.length - 1].rate;
+    await page.click('[data-act=setPace][data-v=slow]'); await page.waitForFunction(() => window.__spoken.length >= 3 && window.__spoken[window.__spoken.length - 1].rate < 0.8);
+    assert.strictEqual((await state(page)).prefs.pace, 'slow'); assert(normal > 0.9, 'normal pace is close to natural speed');
+    await page.waitForSelector('dialog[open] #voiceSel'); await page.selectOption('#voiceSel', ''); assert.strictEqual(await page.evaluate(() => G.voice().voiceURI), 'aria');
+    await page.click('[data-act=setPace][data-v=normal]'); await page.waitForSelector('dialog[open] #voiceSel'); await page.click('[data-act=closeSettings]');
+    assert.strictEqual((await state(page)).prefs.pace, 'normal');
+  });
+
+  await test('a listed audio clip is played, and any other text falls back to the device voice', async () => {
+    const r = await page.evaluate(() => {
+      const log = { audio: [], voice: [] }; window.Audio = function (src) { this.src = src; this.pause = () => {}; this.play = () => { log.audio.push(this.src); return Promise.resolve(); }; };
+      speechSynthesis.speak = u => log.voice.push(u.text);
+      G.clips = { 'hello world': 'words/hello.mp3' }; G.state.prefs.sound = true;
+      G.say('Hello  {world}'.replace('{world}', 'world')); G.say('Something else');
+      return log;
+    });
+    assert.strictEqual(r.audio.length, 1); assert(r.audio[0].endsWith('audio/words/hello.mp3'), r.audio[0]);
+    assert.deepStrictEqual(r.voice, ['Something else']);
+    await page.evaluate(() => { G.clips = {}; });
+  });
+
   console.log('Phone width');
-  await test('no sideways scrolling on the main screens at 390px wide', async () => {
-    await page.setViewportSize({ width: 390, height: 844 });
-    for (const [h, sel] of [['#/today', '.ring'], ['#/batches', '.bgrid'], ['#/batch/b001', '.station'], ['#/games', '.station'], ['#/progress', '.stat'], ['#/batch/b001/meet/1', '.wcard'], ['#/batch/b001/story/1', '.story'], ['#/batch/b001/use/maker/1', '.maker']]) {
-      await go(h, sel); const over = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth); assert(over <= 1, h + ' overflows by ' + over + 'px');
+  await test('no sideways scrolling on the main screens at 390px wide, at every level', async () => {
+    for (const lv of ['beginner', 'intermediate', 'advanced']) {
+      await page.setViewportSize({ width: 1280, height: 800 }); await setLevel(lv); await page.setViewportSize({ width: 390, height: 844 });
+      for (const [h, sel] of [['#/today', '.ring'], ['#/batches', '.bgrid'], ['#/batch/b001', '.station'], ['#/games', '.station'], ['#/progress', '.stat'], ['#/batch/b001/meet/1', '.wcard'], ['#/batch/b001/story/1', '.story'], ['#/batch/b001/use/maker/1', '.maker'], ['#/batch/b002', '.station'], ['#/batch/b002/story/2', '.story'], ['#/batch/b002/use/maker/1', '.maker']]) {
+        await go(h, sel); const over = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth); assert(over <= 1, lv + ' ' + h + ' overflows by ' + over + 'px');
+      }
     }
   });
   await test('no console errors during the whole run', async () => { assert.deepStrictEqual(consoleErrors, []); });

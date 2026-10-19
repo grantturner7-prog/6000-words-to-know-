@@ -28,6 +28,8 @@ def read(p):
 
 def inline_data():
     data = {"batches": json.loads(read(ROOT / "content/batches.json"))}
+    if (ROOT / "audio/index.json").exists():
+        data["audio"] = json.loads(read(ROOT / "audio/index.json"))
     for f in sorted((ROOT / "content/batches").glob("b*.json")):
         data[f.stem] = json.loads(read(f))
     blob = json.dumps(data, ensure_ascii=False, separators=(",", ":"))

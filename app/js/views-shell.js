@@ -13,6 +13,14 @@
   G.starsHtml = function (batch) {
     return '<span class="stars" aria-label="stars">' + G.LEVELS.map(l => '<span class="' + (G.hasStar(batch, l) ? '' : 'off') + '">⭐</span>').join('') + '</span>';
   };
+  /* one chip per playable batch; shown only when there is a choice */
+  G.batchChips = function () {
+    const list = G.builtList(), cur = G.curBatch();
+    if (list.length < 2) return '';
+    return '<div class="chips" role="group" aria-label="' + esc(t('nav.batches')) + '">' + list.map(id =>
+      '<button class="chipbtn ' + (id === cur ? 'on' : '') + '" data-act="setBatch" data-v="' + id + '" aria-pressed="' + (id === cur) + '">' + esc(t('batches.batch', { n: G.batchNo(id) })) + '</button>').join('') + '</div>';
+  };
+  G.acts.setBatch = el => { G.state.prefs.batch = el.getAttribute('data-v'); G.save(); G.render(); };
   /* the 12 tasks in one batch at one level: 4 meet sets, 6 use rounds, 2 story parts */
   G.taskCounts = function (batch, level) {
     const p = G.pg(batch, level);
@@ -60,17 +68,17 @@
 
   /* ---------- today ---------- */
   G.route(/^#\/today$/, function () {
-    const lv = G.level(), name = G.state.profile.name, b = 'b001';
+    const lv = G.level(), name = G.state.profile.name, b = G.curBatch(), bn = G.batchNo(b);
     return G.loadBatch(b).then(() => {
       const c = G.taskCounts(b, lv), pct = Math.round(c.done / c.total * 100);
       const started = c.done > 0;
       const next = G.nextStep(b, lv);
       const inner =
-        '<div class="hdr"><div><h1>' + esc(t('today.hello', { name })) + ' 👋</h1><p class="sub">' + esc(t('today.sub')) + '</p></div>' + G.levelSeg() + '</div>' +
+        '<div class="hdr"><div><h1>' + esc(t('today.hello', { name })) + ' 👋</h1><p class="sub">' + esc(t('today.sub')) + '</p></div>' + G.levelSeg() + '</div>' + G.batchChips() +
         '<section class="glass card tint" style="display:flex;gap:22px;align-items:center;flex-wrap:wrap"><div class="ring" style="--p:' + pct + '"><b>' + pct + '%</b></div>' +
-        '<div class="grow" style="min-width:220px"><h2>' + esc(t('level.' + lv)) + ' · ' + esc(t('level.' + lv + '.d')) + '</h2><h3 style="font-size:26px;margin:4px 0 8px">' + esc(t('batches.batch', { n: 1 })) + '</h3>' +
+        '<div class="grow" style="min-width:220px"><h2>' + esc(t('level.' + lv)) + ' · ' + esc(t('level.' + lv + '.d')) + '</h2><h3 style="font-size:26px;margin:4px 0 8px">' + esc(t('batches.batch', { n: bn })) + '</h3>' +
         '<div class="row wrap" style="gap:10px"><span class="pill">' + esc(t('station.meet')) + '</span><span class="pill">' + esc(t('station.use')) + '</span><span class="pill">' + esc(t('station.story')) + '</span>' + G.starsHtml(b) + '</div></div>' +
-        '<button class="btn primary" data-act="go" data-go="' + next + '">' + esc(started ? t('today.continue', { n: 1 }) : t('today.new', { n: 1 })) + G.icon('arrow') + '</button></section>' +
+        '<button class="btn primary" data-act="go" data-go="' + next + '">' + esc(started ? t('today.continue', { n: bn }) : t('today.new', { n: bn })) + G.icon('arrow') + '</button></section>' +
         '<div class="grid g3"><div class="glass stat"><b>' + G.state.streak.count + '</b><span>' + esc(t('today.streak')) + '</span></div>' +
         '<div class="glass stat"><b>' + G.starCount() + '</b><span>' + esc(t('today.stars')) + '</span></div>' +
         '<div class="glass stat"><b>' + G.metCount() + '</b><span>' + esc(t('today.met')) + '</span></div></div>' +
@@ -105,14 +113,14 @@
 
   /* ---------- games hub ---------- */
   G.route(/^#\/games$/, function () {
-    const lv = G.level(), b = 'b001';
+    const lv = G.level(), b = G.curBatch();
     const spelling = [['build', '🔤', 'act.build'], ['missing', '🧩', 'act.missing'], ['bee', '🐝', 'act.bee']].map(([a, em, k]) =>
       '<div class="glass station" data-level="' + lv + '"><div class="row"><span style="font-size:34px">' + em + '</span><div><h3>' + esc(t(k)) + '</h3><div class="sub">' + esc(t(k + '.d')) + '</div></div></div>' +
       '<div class="row"><a class="btn sm primary grow" href="#/play/' + a + '/' + b + '/1">' + esc(t('common.part', { n: 1 })) + '</a><a class="btn sm ghost grow" href="#/play/' + a + '/' + b + '/2">' + esc(t('common.part', { n: 2 })) + '</a></div></div>').join('');
     const arcade = [['🌧️', 'games.wordRain'], ['🃏', 'games.memory'], ['⚡', 'games.speed']].map(([em, k]) =>
       '<div class="glass station" style="opacity:.62"><div class="row"><span style="font-size:34px">' + em + '</span><div><h3>' + esc(t(k)) + '</h3><div class="sub">' + esc(t(k + '.d')) + '</div></div></div><span class="pill" style="align-self:flex-start">' + esc(t('common.soon')) + '</span></div>').join('');
-    const inner = '<div class="hdr"><div><h1>' + esc(t('games.title')) + '</h1><p class="sub">' + esc(t('games.sub')) + '</p></div>' + G.levelSeg() + '</div>' +
-      '<div class="row"><span class="pill"><span class="dot"></span>' + esc(t('games.pickBatch', { n: 1, level: t('level.' + lv) })) + '</span></div>' +
+    const inner = '<div class="hdr"><div><h1>' + esc(t('games.title')) + '</h1><p class="sub">' + esc(t('games.sub')) + '</p></div>' + G.levelSeg() + '</div>' + G.batchChips() +
+      '<div class="row"><span class="pill"><span class="dot"></span>' + esc(t('games.pickBatch', { n: G.batchNo(b), level: t('level.' + lv) })) + '</span></div>' +
       '<h2>' + esc(t('games.spelling')) + '</h2><div class="grid g3">' + spelling + '</div>' +
       '<h2>' + esc(t('games.arcade')) + '</h2><div class="grid g3">' + arcade + '</div>';
     return G.loadBatch(b).then(() => G.page(inner, '#/games'));
@@ -120,17 +128,16 @@
 
   /* ---------- progress ---------- */
   G.route(/^#\/progress$/, function () {
-    const b = 'b001';
-    const rows = G.LEVELS.map(l => {
+    const rows = G.builtList().map(b => '<h2>' + esc(t('batches.batch', { n: G.batchNo(b) })) + '</h2><div class="grid g3">' + G.LEVELS.map(l => {
       const c = G.taskCounts(b, l), pct = Math.round(c.done / c.total * 100);
       return '<div class="glass card" data-level="' + l + '"><div class="row between"><h3>' + esc(t('level.' + l)) + '</h3><span class="stars"><span class="' + (G.hasStar(b, l) ? '' : 'off') + '">⭐</span></span></div><div class="meter" style="margin:12px 0 6px"><i style="width:' + pct + '%"></i></div><span class="sub">' + c.done + ' / ' + c.total + '</span></div>';
-    }).join('');
+    }).join('') + '</div>').join('');
     const ss = G.state.sentences.slice().reverse();
     const sentences = ss.length ? ss.map((s, i) => '<div class="saved"><span class="grow">' + esc(s.text) + '</span><button class="iconbtn" data-act="say" data-say="' + esc(s.text) + '" aria-label="' + esc(t('common.listen')) + '">' + G.icon('speaker') + '</button><button class="iconbtn" data-act="delSentence" data-i="' + (G.state.sentences.length - 1 - i) + '" aria-label="' + esc(t('progress.delete')) + '">' + G.icon('x') + '</button></div>').join('')
       : '<div class="empty">' + esc(t('progress.noSentences')) + '</div>';
     const inner = '<div class="hdr"><div><h1>' + esc(t('progress.title')) + '</h1><p class="sub">' + esc(t('progress.sub')) + '</p></div></div>' +
       '<div class="grid g3"><div class="glass stat"><b>' + G.starCount() + '</b><span>' + esc(t('progress.stars')) + '</span></div><div class="glass stat"><b>' + G.metCount() + '</b><span>' + esc(t('today.met')) + '</span></div><div class="glass stat"><b>' + G.state.streak.count + '</b><span>' + esc(t('today.streak')) + '</span></div></div>' +
-      '<h2>' + esc(t('batches.batch', { n: 1 })) + '</h2><div class="grid g3">' + rows + '</div>' +
+      rows +
       '<h2>' + esc(t('progress.sentences')) + '</h2><div class="stack tight">' + sentences + '</div>' +
       '<section class="glass card" id="resetBox"><h3>' + esc(t('progress.resetTitle')) + '</h3><p class="sub" style="margin:6px 0 14px">' + esc(t('progress.resetText')) + '</p><button class="btn ghost" data-act="resetAsk">' + esc(t('progress.resetDo')) + '</button></section>';
     return G.page(inner, '#/progress');

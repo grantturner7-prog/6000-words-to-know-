@@ -2,6 +2,13 @@
 
 Drafted 2026-10-19. Status (2026-10-19): the word list arrived as pasted text, and **Phases 0 to 4 are built and audited** (`docs/audit/`). Batches 1 and 2 are playable at all three levels. Next: owner review, a teacher's read of both batches, a decision on voices, and a trial with a few students, then Phase 5.
 
+## Owner decisions, second review (2026-10-19)
+1. **Batches.** Each batch has 20 words, which gives 298 batches for the 5,944 main words, plus the 65 Little Words. The course is self-paced: a student may finish as many batches in a week as they like. The suggested pace is one batch a week, with the owner's video for that batch (section 5 has the arithmetic).
+2. **What a batch holds.** At each level, in this order: **Watch** (the owner's video, English with Chinese subtitles, in the owner's own voice), **Talk** (an English conversation and a Chinese conversation that use the batch's words), **Meet** (flashcards), **Spell** (drag-and-drop spelling), **Use** (pick the word, Sentence Maker) and **Read** (an article with drag-and-drop gaps). Beginner, Intermediate and Advanced open the same 20 words at a higher level, each with its own recording. Watch and Talk are new; the rest is built.
+3. **No accounts, no monthly bill.** Progress is saved in the student's own browser or app on their own device, and no student information is kept. A save code moves progress to another device. The owner records the videos and voices with a professional microphone.
+
+Still to decide: one video per batch or one per level, what the Chinese conversation is, and where the videos are hosted (section 14, questions 9 to 11).
+
 ## 1. The product in one paragraph
 A web app for phone, iPad and desktop (it must work inside LINE's browser) that teaches 6,000 English words to second-language students in Taiwan, roughly grades 6 to 9 and up. Words arrive in **batches of 20**. Each batch is learned at three levels, **Beginner, Intermediate and Advanced**, with tap-and-drag activities only: no typing and no AI marking. Tapping any word shows its meaning in English and Traditional Chinese, and one switch turns the Chinese on or off. The look is the same liquid-glass design as the IELTS app, in light and dark. Sold as *Genesis 6,000 English Words to Know* for NT$399 (about US$10), one purchase.
 
@@ -58,11 +65,14 @@ Not relied on: a 2019 meta-analysis (Uchihara, Webb and Yanagisawa) supports the
 ## 5. Pace: how many words a week
 Cognitive load sets the **size of a set (5)**. Retention depends far more on **review than on intake**, so the weekly pace is a motivation and time decision more than a memory limit. I recommend piloting before fixing it.
 
-| Plan | Batches a week | New words a week | Weeks for 6,000 | School years (40 weeks) |
-|---|---|---|---|---|
-| Gentle (default) | 1 | 20 | 300 | 7.5 |
-| Steady | 2 | 40 | 150 | 3.75 |
-| Fast | 3 | 60 | 100 | 2.5 |
+| Plan | Batches a week | New words a week | Weeks for 298 batches | Calendar years (52 weeks) | School years (40 weeks) |
+|---|---|---|---|---|---|
+| Gentle (suggested) | 1 | 20 | 298 | 5.7 | 7.5 |
+| Steady | 2 | 40 | 149 | 2.9 | 3.7 |
+| Fast | 3 | 60 | 100 | 1.9 | 2.5 |
+| One a school day | 5 | 100 | 60 | 1.1 | 1.5 |
+
+Grades 6 to 9 are four school years, about 160 school weeks. To finish the 5,944 main words in that time a student needs about two batches a week. The course does not cap the pace; the owner's decision is that students may do as many batches in a week as they want.
 
 **A Gentle week** (my estimate, to confirm in the pilot): four 10-minute sessions, one per set of 5 new words, plus a Story session of about 15 minutes, plus a 5-minute Quick Review each day. That is about 20 minutes a day. Earlier batches come back at Intermediate and Advanced in later weeks, which supplies the spacing.
 
@@ -82,6 +92,8 @@ Levels change the **sentences, the story, the support and the traps**, not the w
 
 ## 7. Anatomy of one batch
 At the top of a batch: the **level switch** (Beginner, Intermediate, Advanced), the **Chinese switch**, and the three stations. Each station holds three activities.
+
+*Update (2026-10-19):* the owner has added two stations in front of these three, **Watch** (the owner's video) and **Talk** (an English and a Chinese conversation); see "Owner decisions". The three stations below are built and tested. Watch and Talk wait on questions 9 to 11 in section 14.
 
 **Station 1: Meet** (run once per set of 5 words, about 10 minutes)
 1. **Word cards.** Tap to see the English meaning, the Chinese (if on), a sentence at the chosen level, and hear the word.
@@ -220,6 +232,9 @@ Answered by the build: the PDF is the public CEEC list (question 1 of the first 
 6. **Audio:** the app speaks with the voices installed on each device. They are ranked so the most natural one is used, and Settings lets a student pick another, but the owner found the result robotic on their device and quality will vary. Recorded or neural text-to-speech files for every word and example, reviewed by the teacher, would sound the same on every device. *Recommended: yes, before launch. Choose one:* (a) the owner or a teacher records the clips; (b) a commercial text-to-speech service with a licence for a paid product, which needs an account and key from the owner; (c) keep device voices only. The app already plays a clip when one is listed in `audio/index.json` and falls back to the device voice otherwise (`audio/README.md`), so clips can be added without rebuilding. From the two written batches, the full course is about 25,000 clips and 1.8 million characters (`python3 scripts/audio_manifest.py`); at typical neural-voice prices of a few to a few tens of US dollars per million characters, that is a small cost, to be confirmed with the chosen provider.
 7. **Engine:** build the learning app and content in this repo, then connect it to the shared accounts and payments engine as its own product (the TOEIC pattern)? *Recommended: yes.*
 8. **Reviewer:** who is the teacher who signs off each batch, and what share of later batches do they read in full?
+9. **Videos: one per batch, or one per level?** The owner's plan has each level with its own video and voice recording. That is 298 videos if one video serves all three levels, or 894 if each level has its own, plus the recording and editing time for each. *Recommended: record Batch 1 at all three levels, try it with students, then decide.*
+10. **The Chinese conversation.** Is it a conversation in Traditional Chinese with the English words kept in English inside it, or a Chinese translation of the English conversation? *Assumed: the first, because it lets students hear each word inside a Chinese sentence.*
+11. **Video hosting.** Unlisted YouTube videos are free, carry Chinese subtitles and need no storage bill; the app embeds them by video ID. Hosting the files ourselves costs storage and bandwidth every month. *Recommended: YouTube, set as made for kids.*
 
 ## 15. Risks
 - **Content volume and quality assurance** (section 11).

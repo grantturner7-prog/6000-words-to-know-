@@ -170,6 +170,7 @@ h3{font-size:19px;font-weight:700;letter-spacing:-.01em}
 .num{width:40px;height:40px;border-radius:14px;display:grid;place-items:center;font-weight:800;background:var(--lv-grad);color:#0b1236;flex:none}
 .acts{display:flex;flex-direction:column;gap:8px}
 .act{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:18px;background:rgba(var(--tint),.09);font-weight:600;font-size:15px;text-align:left;min-height:52px;width:100%;transition:background .2s}
+.ta{display:block;width:100%;box-sizing:border-box;padding:12px 14px;border-radius:16px;background:rgba(var(--tint),.12);border:1px solid rgba(var(--tint),.3);color:inherit;font:inherit;font-size:13px;line-height:1.4;resize:vertical;word-break:break-all;outline:none}
 .sel{padding:10px 14px;border-radius:16px;background:rgba(var(--tint),.12);border:1px solid rgba(var(--tint),.3);color:inherit;font:inherit;font-weight:600;min-width:0;max-width:100%;text-overflow:ellipsis}.sel option{color:CanvasText;background:Canvas}
 .act .pill{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis}.grid>*{min-width:0}
 .act:hover{background:rgba(var(--tint),.18)}.act .em{font-size:22px;width:30px;text-align:center}.act .go{margin-left:auto;color:var(--ink3)}

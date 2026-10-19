@@ -202,6 +202,21 @@ const hintText = page => page.$eval('.bighint', e => Array.from(e.childNodes).fi
     assert((await page.textContent('.hdr h1')).includes('Amy')); assert(Number(await page.textContent('.grid.g3 .stat:nth-child(2) b')) === 3);
   });
 
+  await test('Save code: copy it, lose the progress, paste it back; a damaged code is ignored safely', async () => {
+    await go('#/progress', '.stat'); const before = await state(page);
+    await page.click('[data-act=showCode]'); await page.waitForSelector('#codeOut'); const code = await page.inputValue('#codeOut'); assert(code.startsWith('G6K1.'), code.slice(0, 12));
+    await page.fill('#restoreIn', 'G6K1.not-a-real-code'); await page.click('[data-act=restoreCode]'); await page.waitForSelector('.toast');
+    assert.deepStrictEqual((await state(page)).progress.b001, before.progress.b001, 'garbage code leaves progress alone');
+    await page.evaluate(() => { G.state.progress = {}; G.state.sentences = []; G.state.met = {}; G.save(); G.render(); }); await page.waitForSelector('#restoreIn');
+    assert.deepStrictEqual((await state(page)).progress, {}, 'progress cleared');
+    await page.fill('#restoreIn', code); await page.click('[data-act=restoreCode]'); await page.waitForFunction(() => G.starCount() === 3);
+    const after = await state(page); assert.deepStrictEqual(after.progress.b001, before.progress.b001, 'progress restored'); assert.strictEqual(after.sentences.length, before.sentences.length); assert.strictEqual(Object.keys(after.met).length, Object.keys(before.met).length);
+    const bad = 'G6K1.' + Buffer.from(JSON.stringify({ v: 1, progress: { b001: { beginner: { meet: 'x', story: [1, 'a'] } }, evil: 1 }, met: { w0001: 1, '<b>': 1 } })).toString('base64');
+    await page.fill('#restoreIn', bad); await page.click('[data-act=restoreCode]'); await page.waitForSelector('.stat');
+    const fixed = await state(page); assert(!('evil' in fixed.progress)); assert.deepStrictEqual(fixed.progress.b001.beginner.meet, [0, 0, 0, 0]); assert.deepStrictEqual(fixed.progress.b001.beginner.story, [1, 0]); assert.deepStrictEqual(Object.keys(fixed.met), ['w0001']);
+    await page.fill('#restoreIn', code); await page.click('[data-act=restoreCode]'); await page.waitForFunction(() => G.starCount() === 3);
+  });
+
   await test('Clear my progress asks inside the page, then clears stars and sentences', async () => {
     await go('#/progress', '.stat'); await page.click('[data-act=resetAsk]'); await page.waitForSelector('[data-act=resetYes]');
     await page.click('[data-act=resetNo]'); await page.waitForSelector('[data-act=resetAsk]');

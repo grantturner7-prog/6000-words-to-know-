@@ -53,6 +53,45 @@
   }
   G.state = load();
   G.save = function () { try { localStorage.setItem(KEY, JSON.stringify(G.state)); } catch (e) { /* ignore */ } };
+  /* Save code: a text copy of the progress, so a student can keep a backup or move to another device
+     with no account and no server. The code is rebuilt from known fields only, so a damaged or edited
+     code cannot break the app. */
+  const SAVE_TAG = 'G6K1.', STATION = { meet: 4, pick: 2, maker: 2, bee: 2, build: 2, missing: 2, story: 2 };
+  G.saveCode = function () {
+    const s = G.state, pack = { v: 1, profile: s.profile, progress: s.progress, sentences: s.sentences, met: s.met, streak: s.streak,
+      prefs: { level: s.prefs.level, batch: s.prefs.batch, lang: s.prefs.lang, zh: s.prefs.zh } };
+    return SAVE_TAG + btoa(unescape(encodeURIComponent(JSON.stringify(pack))));
+  };
+  G.restoreCode = function (code) {
+    try {
+      const t = String(code).replace(/\s+/g, '');
+      if (t.indexOf(SAVE_TAG) !== 0) return false;
+      const pack = JSON.parse(decodeURIComponent(escape(atob(t.slice(SAVE_TAG.length)))));
+      if (!pack || pack.v !== 1 || !pack.progress || typeof pack.progress !== 'object' || Array.isArray(pack.progress)) return false;
+      const num = x => (x === null ? null : (typeof x === 'number' && isFinite(x) ? x : 0));
+      const progress = {};
+      Object.keys(pack.progress).forEach(b => {
+        if (!/^b\d{3}$/.test(b) || !pack.progress[b] || typeof pack.progress[b] !== 'object') return;
+        LEVELS.forEach(l => {
+          const src = pack.progress[b][l]; if (!src || typeof src !== 'object') return;
+          const out = (progress[b] = progress[b] || {})[l] = {};
+          Object.keys(STATION).forEach(k => { const a = Array.isArray(src[k]) ? src[k] : []; out[k] = Array.from({ length: STATION[k] }, (_, i) => num(a[i] === undefined ? (k === 'meet' || k === 'story' || k === 'maker' ? 0 : null) : a[i])); });
+        });
+      });
+      const met = {}; Object.keys(pack.met && typeof pack.met === 'object' ? pack.met : {}).forEach(id => { if (/^w\d{4}$/.test(id)) met[id] = 1; });
+      const sentences = (Array.isArray(pack.sentences) ? pack.sentences : []).filter(x => x && typeof x.text === 'string').slice(-200)
+        .map(x => ({ w: String(x.w || '').slice(0, 40), level: LEVELS.indexOf(x.level) >= 0 ? x.level : 'beginner', text: x.text.slice(0, 200), at: String(x.at || '').slice(0, 10) }));
+      const st = pack.streak && typeof pack.streak === 'object' ? pack.streak : {};
+      const prefs = pack.prefs && typeof pack.prefs === 'object' ? pack.prefs : {};
+      const name = pack.profile && typeof pack.profile.name === 'string' ? pack.profile.name.slice(0, 24) : null;
+      G.state.progress = progress; G.state.met = met; G.state.sentences = sentences;
+      G.state.streak = { last: typeof st.last === 'string' ? st.last.slice(0, 10) : null, count: Math.max(0, Math.floor(Number(st.count) || 0)) };
+      if (LEVELS.indexOf(prefs.level) >= 0) G.state.prefs.level = prefs.level;
+      if (typeof prefs.batch === 'string' && /^b\d{3}$/.test(prefs.batch)) G.state.prefs.batch = prefs.batch;
+      if (name) G.state.profile = { name, created: String((pack.profile && pack.profile.created) || G.today()).slice(0, 10) };
+      G.save(); return true;
+    } catch (e) { return false; }
+  };
   G.level = () => G.state.prefs.level;
   G.zhOn = () => !!G.state.prefs.zh;
 

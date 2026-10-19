@@ -139,9 +139,27 @@
       '<div class="grid g3"><div class="glass stat"><b>' + G.starCount() + '</b><span>' + esc(t('progress.stars')) + '</span></div><div class="glass stat"><b>' + G.metCount() + '</b><span>' + esc(t('today.met')) + '</span></div><div class="glass stat"><b>' + G.state.streak.count + '</b><span>' + esc(t('today.streak')) + '</span></div></div>' +
       rows +
       '<h2>' + esc(t('progress.sentences')) + '</h2><div class="stack tight">' + sentences + '</div>' +
+      '<section class="glass card" id="keepBox"><h3>' + esc(t('progress.keepTitle')) + '</h3><p class="sub" style="margin:6px 0 14px">' + esc(t('progress.keepText')) + '</p>' +
+      '<div class="row wrap"><button class="btn ghost" data-act="showCode">' + esc(t('progress.showCode')) + '</button></div><div id="codeBox"></div>' +
+      '<label class="sub" for="restoreIn" style="display:block;margin:16px 0 6px">' + esc(t('progress.restoreLabel')) + '</label><textarea id="restoreIn" class="ta" rows="2" spellcheck="false" autocomplete="off"></textarea>' +
+      '<div class="row wrap" style="margin-top:10px"><button class="btn ghost" data-act="restoreCode">' + esc(t('progress.restore')) + '</button></div></section>' +
       '<section class="glass card" id="resetBox"><h3>' + esc(t('progress.resetTitle')) + '</h3><p class="sub" style="margin:6px 0 14px">' + esc(t('progress.resetText')) + '</p><button class="btn ghost" data-act="resetAsk">' + esc(t('progress.resetDo')) + '</button></section>';
     return G.page(inner, '#/progress');
   });
+  G.acts.showCode = () => {
+    const box = G.$('#codeBox'); if (!box) return;
+    box.innerHTML = '<textarea id="codeOut" class="ta" rows="4" readonly spellcheck="false" style="margin-top:12px">' + esc(G.saveCode()) + '</textarea><div class="row wrap" style="margin-top:10px"><button class="btn sm primary" data-act="copyCode">' + esc(t('progress.copyCode')) + '</button></div>';
+    const ta = G.$('#codeOut'); if (ta) ta.select();
+  };
+  G.acts.copyCode = () => {
+    const ta = G.$('#codeOut'); if (!ta) return;
+    const done = () => G.toast(t('progress.copied'));
+    try { navigator.clipboard.writeText(ta.value).then(done, () => { ta.select(); }); } catch (e) { ta.select(); }
+  };
+  G.acts.restoreCode = () => {
+    const v = (G.$('#restoreIn') || {}).value || '';
+    if (G.restoreCode(v)) { G.toast(t('progress.restoreOk')); G.render(); } else G.toast(t('progress.restoreBad'));
+  };
   G.acts.delSentence = el => { G.state.sentences.splice(+el.getAttribute('data-i'), 1); G.save(); G.render(); };
   G.acts.resetAsk = () => {
     const box = G.$('#resetBox'); if (!box) return;

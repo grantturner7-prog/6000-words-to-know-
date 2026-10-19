@@ -260,47 +260,108 @@ const hintText = page => page.$eval('.bighint', e => Array.from(e.childNodes).fi
   console.log('Watch and listen');
   const hubLevel = async lv => { await page.locator('[data-act=setLevel][data-v=' + lv + ']').first().click(); await page.waitForSelector('.shell[data-level=' + lv + ']'); await page.waitForSelector('.mtile'); };
   const mediaTexts = () => page.$$eval('.mtile', els => els.map(e => ({ title: e.querySelector('b').textContent.trim(), sub: e.querySelector('small').textContent.trim(), tag: e.tagName, href: e.getAttribute('href'), target: e.getAttribute('target'), rel: e.getAttribute('rel'), off: e.classList.contains('off'), soon: !!e.querySelector('.pill') })));
+  const setMedia = (m, lang) => page.evaluate(([media, lng]) => { G.media = media; if (lng) { G.state.prefs.lang = lng; G.save(); } G.render(); }, [m, lang || null]);
+  const silentWav = seconds => { const rate = 8000, n = rate * seconds, b = Buffer.alloc(44 + n, 0x80); b.write('RIFF', 0); b.writeUInt32LE(36 + n, 4); b.write('WAVEfmt ', 8); b.writeUInt32LE(16, 16); b.writeUInt16LE(1, 20); b.writeUInt16LE(1, 22); b.writeUInt32LE(rate, 24); b.writeUInt32LE(rate, 28); b.writeUInt16LE(1, 32); b.writeUInt16LE(8, 34); b.write('data', 36); b.writeUInt32LE(n, 40); return b; };
+  const DRIVE = 'https://drive.google.com/file/d/ABC123_xyz-9/view?usp=drive_link', DRIVE_FRAME = 'https://drive.google.com/file/d/ABC123_xyz-9/preview';
+  const none = { video: '', talk: '' }, only = (b, o) => ({ b001: Object.assign({ beginner: none, intermediate: none, advanced: none }, { [b]: o }) });
+  // stand-ins for Google Drive and a media host, so the test never needs the network
+  await page.route('https://drive.google.com/**', route => route.fulfill({ status: 200, contentType: 'text/html', body: '<!doctype html><title>stand-in</title><p>stand-in player</p>' }));
+  await page.route('https://media.example.com/**', route => /\.wav$/.test(route.request().url()) ? route.fulfill({ status: 200, contentType: 'audio/wav', body: silentWav(8) }) : route.fulfill({ status: 404, body: '' }));
+  await test('how a link plays: Drive files and direct video or audio files play in the page, any other link opens in a new tab', async () => {
+    const e = u => page.evaluate(x => G.mediaEmbed(x), u);
+    assert.deepStrictEqual(await e(DRIVE), { kind: 'frame', src: DRIVE_FRAME });
+    assert.deepStrictEqual(await e('https://drive.google.com/open?id=ABC123_xyz-9'), { kind: 'frame', src: DRIVE_FRAME });
+    assert.deepStrictEqual(await e('https://media.example.com/a/b.MP4?x=1'), { kind: 'video', src: 'https://media.example.com/a/b.MP4?x=1' });
+    assert.strictEqual((await e('https://media.example.com/a/talk.m4a')).kind, 'audio');
+    for (const other of ['https://media.example.com/watch/abc', 'https://example.com/file.pdf', 'not a link']) assert.strictEqual(await e(other), null, other);
+  });
   await test('the links written in content/media.json appear on the buttons at every level, and an empty one stays Coming soon', async () => {
     for (const lv of ['beginner', 'intermediate', 'advanced']) {
       await setLevel(lv); await go('#/batch/b001', '.mtile'); await page.reload(); await page.waitForSelector('.mtile');
       const m = await mediaTexts(), want = MEDIA.b001[lv];
-      [['video', 0], ['talk', 1]].forEach(([k, i]) => { if (/^https:\/\//.test(want[k])) { assert.strictEqual(m[i].href, want[k].trim(), lv + ' ' + k); assert.strictEqual(m[i].target, '_blank'); } else assert(m[i].off && m[i].soon, lv + ' ' + k + ' has no link yet'); });
+      for (const [k, i] of [['video', 0], ['talk', 1]]) {
+        if (!/^https:\/\//.test(want[k])) { assert(m[i].off && m[i].soon, lv + ' ' + k + ' has no link yet'); continue; }
+        const em = await page.evaluate(u => G.mediaEmbed(u), want[k].trim());
+        if (em) { // plays in the page
+          assert.strictEqual(m[i].tag, 'BUTTON', lv + ' ' + k); await page.locator('.mtile').nth(i).click();
+          assert.strictEqual(await page.getAttribute('#mplay iframe, #mplay video, #mplay audio', 'src'), em.src, lv + ' ' + k); await page.click('[data-act=mediaClose]');
+        } else { assert.strictEqual(m[i].href, want[k].trim(), lv + ' ' + k); assert.strictEqual(m[i].target, '_blank'); }
+      }
     }
   });
   await test('each level shows Watch the video and Listen to an in-depth conversation, each with its subtitle, and Coming soon until a link is added', async () => {
     for (const lv of ['beginner', 'intermediate', 'advanced']) {
-      await setLevel(lv); await go('#/batch/b001', '.mtile'); await page.evaluate(() => { G.media = {}; G.render(); }); await page.waitForSelector('.mtile.off');
+      await setLevel(lv); await go('#/batch/b001', '.mtile'); await setMedia({}); await page.waitForSelector('.mtile.off');
       const m = await mediaTexts(); assert.strictEqual(m.length, 2);
       assert.deepStrictEqual(m.map(x => [x.title, x.sub]), [['Watch the video', 'Watch now: English video'], ['Listen to an in-depth conversation', 'Listen now: Chinese conversation about the words']]);
       assert(m.every(x => x.off && x.soon && x.tag === 'BUTTON'), lv + ': no link yet');
     }
     await page.click('.mtile[data-kind=video]', { force: true }); await page.waitForFunction(() => document.getElementById('toasts').textContent.includes('This one is coming soon.'));
   });
-  await test('links from content/media.json become new-tab buttons, are different for each level, and only https links are used', async () => {
+  await test('links are different for each level, other links open in a new tab, and only https links are used', async () => {
     await setLevel('beginner'); await go('#/batch/b001', '.mtile');
-    await page.evaluate(() => { G.media = { b001: { beginner: { video: 'https://media.example.com/lesson-1/beginner-video.mp4', talk: 'https://media.example.com/lesson-1/beginner-talk.mp3' }, intermediate: { video: 'https://media.example.com/lesson-1/intermediate-video.mp4', talk: 'http://media.example.com/not-secure.mp3' }, advanced: { video: 'javascript:alert(1)', talk: '' } } }; G.render(); });
+    await setMedia({ b001: { beginner: { video: 'https://media.example.com/lesson-1/watch-beginner', talk: 'https://media.example.com/lesson-1/beginner-talk.mp3' }, intermediate: { video: 'https://media.example.com/lesson-1/intermediate-video.mp4', talk: 'http://media.example.com/not-secure.mp3' }, advanced: { video: 'javascript:alert(1)', talk: '' } } });
     await page.waitForSelector('a.mtile');
     let m = await mediaTexts();
-    assert.deepStrictEqual(m.map(x => x.href), ['https://media.example.com/lesson-1/beginner-video.mp4', 'https://media.example.com/lesson-1/beginner-talk.mp3']);
-    assert(m.every(x => x.tag === 'A' && x.target === '_blank' && /noopener/.test(x.rel) && !x.off));
+    assert.deepStrictEqual(m.map(x => x.tag), ['A', 'BUTTON']);
+    assert(m[0].href === 'https://media.example.com/lesson-1/watch-beginner' && m[0].target === '_blank' && /noopener/.test(m[0].rel) && !m[0].off, 'a page link opens in a new tab');
+    assert(!m[1].off && m[1].href === null, 'an audio file plays in the page');
     assert.deepStrictEqual(m.map(x => x.sub), ['Watch now: English video', 'Listen now: Chinese conversation about the words']);
     await hubLevel('intermediate');
     m = await mediaTexts();
-    assert.strictEqual(m[0].href, 'https://media.example.com/lesson-1/intermediate-video.mp4'); assert(m[1].off && m[1].tag === 'BUTTON', 'an http link is not used');
+    assert(!m[0].off && m[0].tag === 'BUTTON', 'an mp4 plays in the page'); assert(m[1].off && m[1].tag === 'BUTTON', 'an http link is not used');
     await hubLevel('advanced');
     m = await mediaTexts(); assert(m.every(x => x.off && x.tag === 'BUTTON'), 'a javascript: link and an empty link are not used');
   });
-  await test('in Traditional Chinese the buttons and their subtitles are in Chinese, and they fit a 390px phone', async () => {
-    await page.evaluate(() => { G.state.prefs.lang = 'zh'; G.save(); G.render(); }); await page.waitForSelector('.mtile');
+  await test('a Google Drive link plays inside the lesson page: no new tab, one player at a time, and a close button', async () => {
+    await setLevel('beginner'); await go('#/batch/b001', '.mtile');
+    await setMedia(only('beginner', { video: DRIVE, talk: DRIVE.replace('ABC123', 'DEF456') }));
+    await page.waitForSelector('button.mtile[data-act=mediaPlay]');
+    const tabs = ctx.pages().length;
+    await page.click('.mtile[data-kind=video]'); await page.waitForSelector('#mplay iframe');
+    assert.strictEqual(await page.getAttribute('#mplay iframe', 'src'), DRIVE_FRAME);
+    assert.strictEqual(await page.getAttribute('#mplay iframe', 'title'), 'Watch the video'); assert((await page.getAttribute('#mplay iframe', 'allow')).includes('fullscreen'));
+    assert.strictEqual(await page.locator('.mtile.on').count(), 1); assert.strictEqual(await page.getAttribute('.mtile[data-kind=video]', 'aria-expanded'), 'true');
+    assert.strictEqual(ctx.pages().length, tabs, 'it must not open a new tab');
+    const link = await page.$eval('#mplay a.sub', a => [a.textContent.trim(), a.href, a.target]); assert.deepStrictEqual(link, ['Open in a new tab', DRIVE, '_blank']);
+    await page.click('.mtile[data-kind=talk]'); await page.waitForFunction(() => document.querySelectorAll('#mplay iframe').length === 1 && document.querySelector('#mplay iframe').src.includes('DEF456'));
+    assert.strictEqual((await page.textContent('#mplay .top b')).trim(), 'Listen to an in-depth conversation');
+    assert.strictEqual(await page.getAttribute('.mtile[data-kind=video]', 'aria-expanded'), 'false');
+    await page.click('[data-act=mediaClose]'); assert.strictEqual(await page.locator('#mplay iframe').count(), 0); assert.strictEqual(await page.locator('.mtile.on').count(), 0);
+    await page.click('.mtile[data-kind=video]'); await page.waitForSelector('#mplay iframe'); await hubLevel('intermediate'); assert.strictEqual(await page.locator('#mplay iframe').count(), 0, 'changing level closes the player');
+  });
+  await test('an audio file plays inside the page with its own controls, and starts playing', async () => {
+    await setLevel('beginner'); await go('#/batch/b001', '.mtile');
+    await setMedia(only('beginner', { video: '', talk: 'https://media.example.com/audio/talk.wav' }));
+    await page.click('.mtile[data-kind=talk]'); await page.waitForSelector('#mplay audio[controls]');
+    await page.waitForFunction(() => { const a = document.querySelector('#mplay audio'); return a && a.readyState >= 1 && a.duration > 5; }, null, { timeout: 5000 });
+    await page.waitForFunction(() => { const a = document.querySelector('#mplay audio'); return a && !a.paused && a.currentTime > 0; }, null, { timeout: 5000 });
+    await page.click('[data-act=mediaClose]'); assert.strictEqual(await page.locator('#mplay audio').count(), 0);
+  });
+  await test('in Traditional Chinese the buttons, subtitles and player are in Chinese, and they fit a 390px phone', async () => {
+    await setMedia({}, 'zh'); await page.waitForSelector('.mtile');
     await hubLevel('beginner');
     const m = await mediaTexts();
     assert.deepStrictEqual(m.map(x => [x.title, x.sub]), [['觀看影片', '立即觀看：英文影片'], ['收聽深入對談', '立即收聽：關於這些單字的中文對談']]);
-    await page.setViewportSize({ width: 390, height: 844 }); await page.waitForTimeout(200);
-    const r = await page.evaluate(() => ({ over: document.documentElement.scrollWidth - innerWidth, tiles: Array.from(document.querySelectorAll('.mtile')).map(e => { const b = e.getBoundingClientRect(); return [b.left, b.right]; }) }));
-    assert(r.over <= 1, 'overflow ' + r.over); assert(r.tiles.every(([l, rr]) => l >= 0 && rr <= 390), JSON.stringify(r.tiles));
+    await setMedia(only('beginner', { video: DRIVE, talk: '' }));
+    await page.setViewportSize({ width: 390, height: 844 }); await page.click('.mtile[data-kind=video]'); await page.waitForSelector('#mplay iframe'); await page.waitForTimeout(300);
+    assert.strictEqual((await page.textContent('#mplay a.sub')).trim(), '在新分頁開啟'); assert.strictEqual((await page.textContent('#mplay .top b')).trim(), '觀看影片');
+    const r = await page.evaluate(() => ({ over: document.documentElement.scrollWidth - innerWidth, boxes: Array.from(document.querySelectorAll('.mtile, #mplay iframe')).map(e => { const b = e.getBoundingClientRect(); return [b.left, b.right, b.height]; }) }));
+    assert(r.over <= 1, 'overflow ' + r.over); assert(r.boxes.every(([l, rr]) => l >= 0 && rr <= 390), JSON.stringify(r.boxes)); assert(r.boxes[r.boxes.length - 1][2] > 150, 'the video frame has a usable height');
     await page.setViewportSize({ width: 1280, height: 900 });
-    await page.evaluate(() => { G.state.prefs.lang = 'en'; G.save(); G.media = {}; G.render(); }); await page.waitForSelector('.mtile');
+    await setMedia({}, 'en'); await page.waitForSelector('.mtile');
     assert.strictEqual((await mediaTexts())[0].title, 'Watch the video');
+  });
+  await test('where this window refuses other sites’ players, the panel says so and offers a new tab', async () => {
+    const before = consoleErrors.length;
+    await setLevel('beginner'); await go('#/batch/b001', '.mtile');
+    await page.evaluate(() => { const m = document.createElement('meta'); m.httpEquiv = 'Content-Security-Policy'; m.content = "frame-src 'none'"; document.head.appendChild(m); });
+    await setMedia(only('beginner', { video: DRIVE, talk: '' }));
+    await page.click('.mtile[data-kind=video]'); await page.waitForSelector('#mplay .mframe.blocked', { timeout: 4000 });
+    assert.strictEqual((await page.textContent('#mplay .mframe.blocked p')).trim(), 'Open it in a new tab to play it.');
+    const a = await page.$eval('#mplay .mframe.blocked a.btn.primary', x => [x.textContent.trim(), x.href, x.target]); assert.deepStrictEqual(a, ['Open in a new tab', DRIVE, '_blank']);
+    consoleErrors.splice(before); // the browser's own "refused to frame" message is the expected result here
+    await page.reload(); await page.waitForSelector('.mtile'); // clears the test policy
   });
 
   console.log('Games and the other stations');

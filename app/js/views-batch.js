@@ -80,6 +80,38 @@
 
   /* ---------- lesson hub ---------- */
   G.acts.mediaSoon = () => G.toast(t('media.soonMsg'));
+  /* Play the video or conversation inside the lesson page. Where the page is not allowed to show another site's player
+     (some preview windows), the panel says so and offers the link in a new tab. */
+  let mediaGuard = null;
+  function stopMedia() {
+    if (mediaGuard) { document.removeEventListener('securitypolicyviolation', mediaGuard); mediaGuard = null; }
+    const box = G.$('#mplay'); if (box) box.innerHTML = '';
+    G.$$('.mtile').forEach(x => { x.classList.remove('on'); if (x.hasAttribute('aria-expanded')) x.setAttribute('aria-expanded', 'false'); });
+  }
+  G.acts.mediaClose = stopMedia;
+  G.acts.mediaPlay = el => {
+    const kind = el.getAttribute('data-kind'), url = G.mediaLink(el.getAttribute('data-b'), G.level(), kind), em = url && G.mediaEmbed(url), box = G.$('#mplay');
+    if (!em || !box) return;
+    stopMedia();
+    const title = t('media.' + kind), src = esc(em.src);
+    const player = em.kind === 'frame' ? '<iframe src="' + src + '" title="' + esc(title) + '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>'
+      : em.kind === 'video' ? '<video src="' + src + '" controls playsinline preload="metadata"></video>'
+      : '<audio src="' + src + '" controls preload="metadata"></audio>';
+    box.innerHTML = '<div class="mplayer"><div class="top"><b>' + esc(title) + '</b><button class="iconbtn" data-act="mediaClose" aria-label="' + esc(t('common.close')) + '">' + G.icon('x') + '</button></div>' +
+      '<div class="mframe' + (em.kind === 'audio' ? ' audio' : '') + '">' + player + '</div>' +
+      '<a class="sub" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">' + esc(t('media.open')) + '</a></div>';
+    G.$$('.mtile').forEach(x => { const on = x === el; x.classList.toggle('on', on); if (x.hasAttribute('aria-expanded')) x.setAttribute('aria-expanded', on ? 'true' : 'false'); });
+    const blocked = () => {
+      const f = G.$('#mplay .mframe'); if (!f) return;
+      const dup = G.$('#mplay .mplayer > .sub'); if (dup) dup.remove();
+      f.className = 'mframe blocked'; f.innerHTML = '<p>' + esc(t('media.blocked')) + '</p><a class="btn primary" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">' + esc(t('media.open')) + '</a>';
+    };
+    mediaGuard = e => { if (/^(frame|child|media|default)-src/.test(e.violatedDirective)) blocked(); };
+    document.addEventListener('securitypolicyviolation', mediaGuard);
+    const m = G.$('#mplay video, #mplay audio');
+    if (m) { m.addEventListener('error', blocked); const p = m.play(); if (p && p.catch) p.catch(() => {}); }
+    try { box.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (err) { /* older browsers */ }
+  };
   G.route(/^#\/batch\/(b\d+)$/, function (id) {
     if (!G.isBuilt(id)) { location.hash = '#/batches'; return new Promise(() => {}); }
     return G.loadBatch(id).then(b => {
@@ -92,11 +124,12 @@
       const mediaTile = (kind, icon) => {
         const url = G.mediaLink(id, lv, kind), ttl = t('media.' + kind), sub = t('media.' + kind + 'Sub');
         const body = '<span class="ic">' + G.icon(icon) + '</span><span class="grow"><b>' + esc(ttl) + '</b><small>' + esc(sub) + '</small></span>' + (url ? '<span class="go">' + G.icon('arrow') + '</span>' : '<span class="pill">' + esc(t('media.soon')) + '</span>');
-        return url
-          ? '<a class="mtile" data-kind="' + kind + '" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer" aria-label="' + esc(ttl + '. ' + sub + '. ' + t('media.newTab')) + '">' + body + '</a>'
-          : '<button class="mtile off" data-kind="' + kind + '" data-act="mediaSoon" aria-disabled="true">' + body + '</button>';
+        if (!url) return '<button class="mtile off" data-kind="' + kind + '" data-act="mediaSoon" aria-disabled="true">' + body + '</button>';
+        return G.mediaEmbed(url)
+          ? '<button class="mtile" data-kind="' + kind + '" data-b="' + id + '" data-act="mediaPlay" aria-expanded="false" aria-controls="mplay">' + body + '</button>'
+          : '<a class="mtile" data-kind="' + kind + '" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer" aria-label="' + esc(ttl + '. ' + sub + '. ' + t('media.newTab')) + '">' + body + '</a>';
       };
-      const media = '<section class="glass card" data-level="' + lv + '"><h2>' + esc(t('media.title')) + '</h2><div class="mtiles" style="margin-top:14px">' + mediaTile('video', 'play') + mediaTile('talk', 'headphones') + '</div></section>';
+      const media = '<section class="glass card" data-level="' + lv + '"><h2>' + esc(t('media.title')) + '</h2><div class="mtiles" style="margin-top:14px">' + mediaTile('video', 'play') + mediaTile('talk', 'headphones') + '</div><div id="mplay" aria-live="polite"></div></section>';
       const words = b.words.map(w => '<button class="chip" data-peek="' + w.id + '" style="font-size:16px;min-height:42px;touch-action:auto">' + (w.emoji || '') + ' ' + esc(w.headword) + '</button>').join('');
       const inner = '<div class="hdr"><div><a class="sub" href="#/batches" style="font-weight:700">‹ ' + esc(t('nav.batches')) + '</a><h1>' + esc(t('batch.title', { n })) + '</h1><p class="sub">' + esc(t('batch.sub')) + '</p></div>' + G.starsHtml(id) + '</div>' +
         '<div class="glass card row between wrap" data-level="' + lv + '"><div class="stack tight grow" style="min-width:260px"><h2>' + esc(t('batch.level')) + '</h2>' + G.levelSeg() + '<span class="hint-text">' + esc(t('level.' + lv + '.d')) + '</span></div>' + zhSwitch() + '</div>' +

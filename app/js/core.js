@@ -220,6 +220,17 @@
     const u = G.media && G.media[batch] && G.media[batch][level] && G.media[batch][level][kind];
     return typeof u === 'string' && /^https:\/\/[^\s"'<>]+$/.test(u.trim()) ? u.trim() : '';
   };
+  /* How a link can play inside the lesson page: a Google Drive file in Drive's own player, or a direct video or audio file.
+     Any other link returns null and opens in a new tab instead. */
+  G.mediaEmbed = url => {
+    const d = /^https:\/\/drive\.google\.com\/file\/d\/([A-Za-z0-9_-]+)/.exec(url) || /^https:\/\/drive\.google\.com\/(?:open|uc)\?(?:[^#]*&)?id=([A-Za-z0-9_-]+)/.exec(url);
+    if (d) return { kind: 'frame', src: 'https://drive.google.com/file/d/' + d[1] + '/preview' };
+    let ext = ''; try { ext = (/\.([a-z0-9]+)$/i.exec(new URL(url).pathname) || [])[1] || ''; } catch (e) { return null; }
+    ext = ext.toLowerCase();
+    if (/^(mp4|m4v|webm|mov|ogv)$/.test(ext)) return { kind: 'video', src: url };
+    if (/^(mp3|m4a|wav|ogg|oga|aac|flac)$/.test(ext)) return { kind: 'audio', src: url };
+    return null;
+  };
   G.isBuilt = id => G.builtList().indexOf(id) >= 0;
   G.builtIds = ['b001'];   /* batches written and playable; the single-file build lists whatever it inlines */
   G.builtList = () => (window.G_INLINE ? Object.keys(window.G_INLINE).filter(k => /^b\d+$/.test(k)).sort() : G.builtIds);
